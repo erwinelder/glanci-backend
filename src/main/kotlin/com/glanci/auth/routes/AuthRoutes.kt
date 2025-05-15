@@ -1,7 +1,7 @@
 package com.glanci.auth.routes
 
 import com.glanci.auth.domain.dto.EmailUpdateRequestDto
-import com.glanci.auth.domain.dto.PasswordResetRequest
+import com.glanci.auth.domain.dto.ResetPasswordRequestDto
 import com.glanci.auth.domain.dto.SignUpFormDto
 import com.glanci.auth.domain.dto.UpdatePasswordRequestDto
 import com.glanci.auth.domain.dto.UserCredentialsDto
@@ -82,13 +82,10 @@ fun Routing.authRoutes(
         }
 
         post("verify-password-reset") {
-            val passwordResetRequest = call.receiveOrNull<PasswordResetRequest>()
+            val request = call.receiveOrNull<ResetPasswordRequestDto>()
                 ?: throw AuthError.PasswordResetRequestIsMissingOrInvalid()
 
-            firebaseAuthService.verifyPasswordReset(
-                oobCode = passwordResetRequest.oobCode,
-                newPassword = passwordResetRequest.newPassword
-            )
+            firebaseAuthService.verifyPasswordReset(oobCode = request.oobCode, newPassword = request.newPassword)
 
             call.respond(HttpStatusCode.OK)
         }

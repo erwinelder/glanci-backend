@@ -7,7 +7,7 @@ object GlanciUserTable : Table("glanci_user") {
     val email = varchar("email", 50)
     val role = varchar("role", 10)
     val name = varchar("name", 30)
-    val langCode = varchar("lang", 2)
+    val langCode = varchar("langCode", 2)
     val subscription = varchar("subscription", 15)
 
     override val primaryKey = PrimaryKey(id)

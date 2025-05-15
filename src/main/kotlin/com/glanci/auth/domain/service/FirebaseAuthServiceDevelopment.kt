@@ -24,6 +24,35 @@ class FirebaseAuthServiceDevelopment : FirebaseAuthService {
 
     override suspend fun sendEmailVerification(idToken: String) {}
 
+    override suspend fun verifyEmail(oobCode: String): FirebaseUser {
+        return FirebaseUser(
+            idToken = "token",
+            uid = "uid",
+            email = "email",
+            emailVerified = true
+        )
+    }
+
+
+    override suspend fun requestEmailUpdate(idToken: String, newEmail: String) {}
+
+    override suspend fun verifyEmailUpdate(oobCode: String): FirebaseUser {
+        return FirebaseUser(
+            idToken = "token",
+            uid = "uid",
+            email = "email",
+            emailVerified = true
+        )
+    }
+
+
+    override suspend fun updatePassword(idToken: String, newPassword: String) {}
+
+    override suspend fun requestPasswordReset(email: String) {}
+
+    override suspend fun verifyPasswordReset(oobCode: String, newPassword: String) {}
+
+
     override suspend fun deleteUser(email: String, password: String) {}
 
 }

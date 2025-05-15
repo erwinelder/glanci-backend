@@ -8,7 +8,7 @@ class GlanciDatabaseProvider {
 
     init {
         val environment = System.getenv("ENVIRONMENT")
-        database = configureDatabase(environment = environment, databaseName = "glanci_db", poolSize = 3)
+        database = configureDatabase(environment = environment, databaseName = "glanci", poolSize = 3)
 
         if (environment == "development") {
             configureUserManagementDatabaseTestData(database = database)
