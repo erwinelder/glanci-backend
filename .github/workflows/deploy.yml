@@ -1,0 +1,29 @@
+name: Deploy Glanci Backend to Azure Web Apps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-api-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Glanci Backend
+        run: ./gradlew build
+
+      - name: Deploy Glanci Backend to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "walletglance-backend"
+          publish-profile: ${{ secrets.WALLETGLANCE_CREDENTIALS }}
+          package: build/libs/glanci-all.jar
