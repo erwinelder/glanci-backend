@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy-api-gateway:
+  deploy-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,11 +19,11 @@ jobs:
           distribution: 'temurin'
 
       - name: Build Glanci Backend
-        run: ./gradlew build
+        run: ./gradlew shadowJar
 
       - name: Deploy Glanci Backend to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: "walletglance-backend"
           publish-profile: ${{ secrets.AZURE_WALLETGLANCE_CREDENTIALS }}
-          package: build/libs/glanci-all.jar
+          package: build/libs/GlanciBackend-all.jar

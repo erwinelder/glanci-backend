@@ -8,11 +8,11 @@ class GlanciDatabaseProvider {
 
     init {
         val environment = System.getenv("ENVIRONMENT")
-        database = configureDatabase(environment = environment, databaseName = "glanci", poolSize = 3)
+        database = configureDatabase(environment = environment, databaseName = "glanci", poolSize = 1)
 
-        if (environment == "development") {
-            configureUserManagementDatabaseTestData(database = database)
-        }
+//        if (environment == "development") {
+//            configureUserManagementDatabaseTestData(database = database)
+//        }
     }
 
 }
