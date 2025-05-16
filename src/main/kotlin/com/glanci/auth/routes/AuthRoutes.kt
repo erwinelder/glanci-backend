@@ -141,6 +141,17 @@ fun Routing.authRoutes(
                 call.respond(user.toDto())
             }
 
+            post("delete-account") {
+                val userData = authorizeAtLeastAsUser()
+                val credentials = call.receiveOrNull<UserCredentialsDto>()
+                    ?: throw AuthError.UserCredentialsAreMissingOrInvalid()
+
+                userService.deleteUser(userId = userData.id)
+                firebaseAuthService.deleteUser(email = credentials.email, password = credentials.password)
+
+                call.respond(HttpStatusCode.NoContent)
+            }
+
         }
 
     }

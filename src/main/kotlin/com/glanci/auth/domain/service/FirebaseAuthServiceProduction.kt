@@ -229,19 +229,26 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
 
 
     override suspend fun deleteUser(email: String, password: String) {
-        val idToken = signIn(email = email, password = password).idToken
-
-        try {
-            val response = httpClient.post("$firebaseAuthApiUrl:delete?key=$firebaseApiKey") {
+        val authResponse = try {
+            httpClient.post("$firebaseAuthApiUrl:signInWithPassword?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
-                setBody(body = hashMapOf("idToken" to idToken))
-            }
+                setBody(body = FirebaseCredentialsRequest(email = email, password = password))
+            }.getFirebaseAuthResponse()
+        } catch (_: Exception) {
+            throw AuthError.InvalidCredentials()
+        }
 
-            if (response.status != HttpStatusCode.OK) {
-                throw AuthError.DeletingUserFailed()
+        val response = try {
+            httpClient.post("$firebaseAuthApiUrl:delete?key=$firebaseApiKey") {
+                contentType(ContentType.Application.Json)
+                setBody(body = hashMapOf("idToken" to authResponse.idToken))
             }
         } catch (_: Exception) {
-            throw AuthError.DeletingUserFailed()
+            throw AuthError.UserDeletionFailed()
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            throw AuthError.UserDeletionFailed()
         }
     }
 

@@ -157,9 +157,9 @@ sealed class AuthError(val statusCode: HttpStatusCode, message: String?) : Throw
         message = "Password reset failed"
     )
 
-    class DeletingUserFailed : AuthError(
+    class UserDeletionFailed : AuthError(
         statusCode = HttpStatusCode.InternalServerError,
-        message = "Deleting user failed"
+        message = "User deletion failed"
     )
 
 }
