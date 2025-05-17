@@ -1,5 +1,5 @@
 group = "com.glanci"
-version = "0.0.1"
+version = "4.2.0"
 
 plugins {
     alias(libs.plugins.kotlin.jvm)

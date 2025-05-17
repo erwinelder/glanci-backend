@@ -21,6 +21,10 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
         }
     }
 
+    private suspend fun HttpResponse.getJsonObject(): JsonObject {
+        return Json.parseToJsonElement(string = this.bodyAsText()).jsonObject
+    }
+
     private suspend fun HttpResponse.getFirebaseAuthResponse(): FirebaseAuthResponse {
         val responseJson = Json.parseToJsonElement(string = this.bodyAsText()).jsonObject
 
@@ -57,13 +61,13 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
         }
     }
 
-    private suspend fun applyOobCode(oobCode: String): FirebaseAuthResponse {
+    private suspend fun applyOobCode(oobCode: String): JsonObject {
         val response = httpClient.post("$firebaseAuthApiUrl:update?key=$firebaseApiKey") {
             contentType(ContentType.Application.Json)
             setBody(body = FirebaseApplyOobCodeRequest(oobCode = oobCode))
         }
 
-        val responseJson = Json.parseToJsonElement(string = response.bodyAsText()).jsonObject
+        val responseJson = response.getJsonObject()
         if (responseJson.containsKey("error")) {
             val error = Json.decodeFromJsonElement<FirebaseErrorResponse>(responseJson)
             when (error.error.message) {
@@ -76,7 +80,7 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             throw Exception()
         }
 
-        return response.getFirebaseAuthResponse()
+        return responseJson
     }
 
 
@@ -141,8 +145,8 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
         }
     }
 
-    override suspend fun verifyEmail(oobCode: String): FirebaseUser {
-        val authResponse = try {
+    override suspend fun verifyEmail(oobCode: String): String {
+        val responseJson = try {
             applyOobCode(oobCode = oobCode)
         } catch (e: AuthError) {
             throw e
@@ -150,7 +154,8 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             throw AuthError.EmailVerificationFailed()
         }
 
-        return lookup(idToken = authResponse.idToken)
+        return responseJson["email"]?.jsonPrimitive?.content
+            ?: throw AuthError.EmailVerificationFailed()
     }
 
 
@@ -169,8 +174,8 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
         }
     }
 
-    override suspend fun verifyEmailUpdate(oobCode: String): FirebaseUser {
-        val authResponse = try {
+    override suspend fun verifyEmailUpdate(oobCode: String): String {
+        val responseJson = try {
             applyOobCode(oobCode = oobCode)
         } catch (e: AuthError) {
             throw e
@@ -178,7 +183,8 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             throw AuthError.EmailUpdateFailed()
         }
 
-        return lookup(idToken = authResponse.idToken)
+        return responseJson["email"]?.jsonPrimitive?.content
+            ?: throw AuthError.EmailUpdateFailed()
     }
 
 

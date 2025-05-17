@@ -4,6 +4,11 @@ import io.ktor.http.*
 
 sealed class AuthError(val statusCode: HttpStatusCode, message: String?) : Throwable(message) {
 
+    class AppVersionCheckRequestIsMissingOrInvalid : AuthError(
+        statusCode = HttpStatusCode.BadRequest,
+        message = "Check app version request is missing or invalid"
+    )
+
     class InvalidToken : AuthError(
         statusCode = HttpStatusCode.Unauthorized,
         message = "Token is missing or invalid"
@@ -12,6 +17,11 @@ sealed class AuthError(val statusCode: HttpStatusCode, message: String?) : Throw
     class InsufficientPermissions : AuthError(
         statusCode = HttpStatusCode.Forbidden,
         message = "Insufficient permissions"
+    )
+
+    class AppVersionIsBelowRequired : AuthError(
+        statusCode = HttpStatusCode.UpgradeRequired,
+        message = "App version is below required"
     )
 
     class UserAuthDataIsMissingOrInvalid : AuthError(

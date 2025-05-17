@@ -1,11 +1,13 @@
 package com.glanci.auth.routes
 
+import com.glanci.auth.domain.dto.CheckAppVersionRequestDto
 import com.glanci.auth.domain.dto.EmailUpdateRequestDto
 import com.glanci.auth.domain.dto.ResetPasswordRequestDto
 import com.glanci.auth.domain.dto.SignUpFormDto
 import com.glanci.auth.domain.dto.UpdatePasswordRequestDto
 import com.glanci.auth.domain.dto.UserCredentialsDto
 import com.glanci.auth.domain.dto.UserWithTokenDto
+import com.glanci.auth.domain.model.AppVersionValidator
 import com.glanci.auth.domain.model.UserDataValidator
 import com.glanci.auth.domain.service.FirebaseAuthService
 import com.glanci.auth.domain.service.UserService
@@ -63,9 +65,9 @@ fun Routing.authRoutes(
         get("/finish-sign-up/{oobCode}") {
             val oobCode = call.parameters["oobCode"] ?: throw AuthError.OobCodeIsMissing()
 
-            val firebaseUser = firebaseAuthService.verifyEmail(oobCode = oobCode)
+            val email = firebaseAuthService.verifyEmail(oobCode = oobCode)
 
-            val user = userService.getUser(email = firebaseUser.email)
+            val user = userService.getUser(email = email)
             val token = createJwtToken(user = user, secret = secret)
 
             call.respond(
@@ -92,6 +94,18 @@ fun Routing.authRoutes(
 
         authenticate("auth-jwt") {
 
+            post("/check-token-validity") {
+                val userData = authorizeAtLeastAsUser()
+                val versionCheckRequest = call.receiveOrNull<CheckAppVersionRequestDto>()
+                    ?: throw AuthError.AppVersionCheckRequestIsMissingOrInvalid()
+
+                AppVersionValidator.validateAppVersion(version = versionCheckRequest.toDomainModel())
+
+                val user = userService.getUser(id = userData.id)
+
+                call.respond(user.toDto())
+            }
+
             post("request-email-update") {
                 val userData = authorizeAtLeastAsUser()
                 val request = call.receiveOrNull<EmailUpdateRequestDto>()
@@ -109,9 +123,9 @@ fun Routing.authRoutes(
                 val userData = authorizeAtLeastAsUser()
                 val oobCode = call.parameters["oobCode"] ?: throw AuthError.OobCodeIsMissing()
 
-                val firebaseUser = firebaseAuthService.verifyEmailUpdate(oobCode = oobCode)
+                val email = firebaseAuthService.verifyEmailUpdate(oobCode = oobCode)
 
-                userService.saveUserEmail(userId = userData.id, email = firebaseUser.email)
+                userService.saveUserEmail(userId = userData.id, email = email)
                 val user = userService.getUser(id = userData.id)
                 val token = createJwtToken(user = user, secret = secret)
 
@@ -131,14 +145,6 @@ fun Routing.authRoutes(
                 firebaseAuthService.updatePassword(idToken = firebaseUser.idToken, newPassword = request.newPassword)
 
                 call.respond(HttpStatusCode.OK)
-            }
-
-            get("/check-token-validity") {
-                val userData = authorizeAtLeastAsUser()
-
-                val user = userService.getUser(id = userData.id)
-
-                call.respond(user.toDto())
             }
 
             post("delete-account") {

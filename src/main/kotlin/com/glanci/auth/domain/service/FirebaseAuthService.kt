@@ -10,12 +10,12 @@ interface FirebaseAuthService {
 
     suspend fun sendEmailVerification(idToken: String)
 
-    suspend fun verifyEmail(oobCode: String): FirebaseUser
+    suspend fun verifyEmail(oobCode: String): String
 
 
     suspend fun requestEmailUpdate(idToken: String, newEmail: String)
 
-    suspend fun verifyEmailUpdate(oobCode: String): FirebaseUser
+    suspend fun verifyEmailUpdate(oobCode: String): String
 
 
     suspend fun updatePassword(idToken: String, newPassword: String)
