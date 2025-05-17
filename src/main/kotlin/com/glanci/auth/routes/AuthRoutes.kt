@@ -16,6 +16,7 @@ import com.glanci.auth.mapper.toDomainModel
 import com.glanci.auth.mapper.toDto
 import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.auth.utils.createJwtToken
+import com.glanci.core.domain.AppLanguage
 import com.glanci.core.utils.receiveOrNull
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -143,6 +144,16 @@ fun Routing.authRoutes(
 
                 val firebaseUser = firebaseAuthService.signIn(email = user.email, password = request.password)
                 firebaseAuthService.updatePassword(idToken = firebaseUser.idToken, newPassword = request.newPassword)
+
+                call.respond(HttpStatusCode.OK)
+            }
+
+            post("save-language/{langCode}") {
+                val userData = authorizeAtLeastAsUser()
+                val language = call.parameters["langCode"]?.let(AppLanguage::fromLangCode)
+                    ?: throw AuthError.LanguageCodeIsMissingOrInvalid()
+
+                userService.saveUserLanguage(userId = userData.id, lang = language)
 
                 call.respond(HttpStatusCode.OK)
             }

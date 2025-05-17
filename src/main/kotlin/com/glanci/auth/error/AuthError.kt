@@ -172,4 +172,10 @@ sealed class AuthError(val statusCode: HttpStatusCode, message: String?) : Throw
         message = "User deletion failed"
     )
 
+
+    class LanguageCodeIsMissingOrInvalid : AuthError(
+        statusCode = HttpStatusCode.BadRequest,
+        message = "Language code is missing or invalid"
+    )
+
 }

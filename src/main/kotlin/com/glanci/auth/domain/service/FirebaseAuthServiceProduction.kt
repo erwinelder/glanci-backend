@@ -163,7 +163,7 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
         val response = try {
             httpClient.post("$firebaseAuthApiUrl:sendOobCode?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
-                setBody(body = FirebaseVerifyAndChangeEmailRequest(requestType = "VERIFY_AND_CHANGE_EMAIL", idToken = idToken, newEmail = newEmail))
+                setBody(body = FirebaseVerifyAndChangeEmailRequest(idToken = idToken, newEmail = newEmail))
             }
         } catch (_: Exception) {
             throw AuthError.EmailUpdateRequestFailed()
