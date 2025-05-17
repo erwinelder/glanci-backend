@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class FirebaseVerifyAndChangeEmailRequest(
     val requestType: String = "VERIFY_AND_CHANGE_EMAIL",
     val idToken: String,
-    val email: String
+    val newEmail: String
 )
