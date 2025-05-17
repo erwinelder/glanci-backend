@@ -23,7 +23,12 @@ fun Application.configureSecurity() {
                     .build()
             }
             validate { credential ->
-                credential.payload.getClaim("email").asString()?.let {
+                credential.payload.getClaim("id").asString()?.let {
+                    JWTPrincipal(credential.payload)
+                }
+            }
+            validate { credential ->
+                credential.payload.getClaim("role").asString()?.let {
                     JWTPrincipal(credential.payload)
                 }
             }
