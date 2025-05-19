@@ -1,7 +1,7 @@
 package com.glanci.auth.domain.model
 
-import com.glanci.core.domain.AppLanguage
-import com.glanci.core.domain.AppSubscription
+import com.glanci.core.domain.model.app.AppLanguage
+import com.glanci.core.domain.model.app.AppSubscription
 
 data class User(
     val id: Int = 0,
@@ -9,5 +9,6 @@ data class User(
     val role: UserRole,
     val name: String,
     val language: AppLanguage,
-    val subscription: AppSubscription
+    val subscription: AppSubscription,
+    val timestamp: Long
 )

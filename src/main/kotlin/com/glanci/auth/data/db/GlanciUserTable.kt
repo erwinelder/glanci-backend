@@ -9,6 +9,7 @@ object GlanciUserTable : Table("glanci_user") {
     val name = varchar("name", 30)
     val langCode = varchar("lang_code", 2)
     val subscription = varchar("subscription", 15)
+    val timestamp = long("timestamp")
 
     override val primaryKey = PrimaryKey(id)
 }

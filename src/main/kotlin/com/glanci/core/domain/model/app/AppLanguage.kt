@@ -1,4 +1,4 @@
-package com.glanci.core.domain
+package com.glanci.core.domain.model.app
 
 sealed class AppLanguage(val langCode: String) {
 

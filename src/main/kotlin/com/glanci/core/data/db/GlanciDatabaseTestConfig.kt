@@ -1,9 +1,10 @@
 package com.glanci.core.data.db
 
 import com.glanci.auth.data.db.GlanciUserTable
-import com.glanci.core.domain.AppSubscription
 import com.glanci.auth.domain.model.UserRole
-import com.glanci.core.domain.AppLanguage
+import com.glanci.core.domain.model.app.AppLanguage
+import com.glanci.core.domain.model.app.AppSubscription
+import com.glanci.core.utils.getCurrentTimestamp
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -26,6 +27,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[name] = "Free User"
                 it[langCode] = AppLanguage.English.langCode
                 it[subscription] = AppSubscription.Free.name
+                it[timestamp] = getCurrentTimestamp()
             }
             GlanciUserTable.insert {
                 it[id] = 2
@@ -34,6 +36,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[name] = "Premium User"
                 it[langCode] = AppLanguage.English.langCode
                 it[subscription] = AppSubscription.Premium.name
+                it[timestamp] = getCurrentTimestamp()
             }
             GlanciUserTable.insert {
                 it[id] = 3
@@ -42,6 +45,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[name] = "Admin"
                 it[langCode] = AppLanguage.English.langCode
                 it[subscription] = AppSubscription.Premium.name
+                it[timestamp] = getCurrentTimestamp()
             }
         }
 

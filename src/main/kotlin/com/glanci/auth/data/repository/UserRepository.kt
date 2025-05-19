@@ -1,8 +1,8 @@
 package com.glanci.auth.data.repository
 
-import com.glanci.core.domain.AppSubscription
 import com.glanci.auth.domain.model.User
-import com.glanci.core.domain.AppLanguage
+import com.glanci.core.domain.model.app.AppLanguage
+import com.glanci.core.domain.model.app.AppSubscription
 
 interface UserRepository {
 
@@ -18,9 +18,9 @@ interface UserRepository {
 
     fun saveUserName(userId: Int, name: String)
 
-    fun saveUserEmail(userId: Int, email: String)
+    fun saveUserLanguage(userId: Int, language: AppLanguage, timestamp: Long)
 
-    fun saveUserLanguage(userId: Int, language: AppLanguage)
+    fun saveUserEmail(userId: Int, email: String)
 
     fun saveUserSubscription(userId: Int, subscription: AppSubscription)
 

@@ -173,9 +173,14 @@ sealed class AuthError(val statusCode: HttpStatusCode, message: String?) : Throw
     )
 
 
-    class LanguageCodeIsMissingOrInvalid : AuthError(
+    class SaveLanguageRequestIsMissingOrInvalid : AuthError(
         statusCode = HttpStatusCode.BadRequest,
-        message = "Language code is missing or invalid"
+        message = "Save language request is missing or invalid"
+    )
+
+    class InvalidLanguage : AuthError(
+        statusCode = HttpStatusCode.BadRequest,
+        message = "Invalid language"
     )
 
 }

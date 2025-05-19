@@ -1,6 +1,6 @@
 package com.glanci.auth.domain.model
 
-import com.glanci.core.domain.AppLanguage
+import com.glanci.core.domain.model.app.AppLanguage
 
 data class SignUpForm(
     val name: String,

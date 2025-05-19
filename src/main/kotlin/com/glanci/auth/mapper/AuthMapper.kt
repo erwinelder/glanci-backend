@@ -6,7 +6,7 @@ import com.glanci.auth.domain.dto.UserDto
 import com.glanci.auth.domain.model.AppVersion
 import com.glanci.auth.domain.model.SignUpForm
 import com.glanci.auth.domain.model.User
-import com.glanci.core.domain.AppLanguage
+import com.glanci.core.domain.model.app.AppLanguage
 
 
 fun SignUpFormDto.toDomainModel(): SignUpForm? {
@@ -26,7 +26,8 @@ fun User.toDto(): UserDto {
         role = role,
         name = name,
         langCode = language.langCode,
-        subscription = subscription
+        subscription = subscription,
+        timestamp = timestamp
     )
 }
 

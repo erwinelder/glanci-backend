@@ -1,10 +1,10 @@
 package com.glanci.auth.data.repository
 
 import com.glanci.auth.data.db.GlanciUserTable
-import com.glanci.core.domain.AppSubscription
 import com.glanci.auth.domain.model.User
 import com.glanci.core.data.db.GlanciDatabaseProvider
-import com.glanci.core.domain.AppLanguage
+import com.glanci.core.domain.model.app.AppLanguage
+import com.glanci.core.domain.model.app.AppSubscription
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -28,7 +28,8 @@ class UserRepositoryImpl(
                         role = enumValueOf(it[GlanciUserTable.role]),
                         name = it[GlanciUserTable.name],
                         language = AppLanguage.fromLangCode(langCode = it[GlanciUserTable.langCode]) ?: return@map null,
-                        subscription = enumValueOf(it[GlanciUserTable.subscription])
+                        subscription = enumValueOf(it[GlanciUserTable.subscription]),
+                        timestamp = it[GlanciUserTable.timestamp]
                     )
                 }
                 .singleOrNull()
@@ -47,7 +48,8 @@ class UserRepositoryImpl(
                         role = enumValueOf(it[GlanciUserTable.role]),
                         name = it[GlanciUserTable.name],
                         language = AppLanguage.fromLangCode(langCode = it[GlanciUserTable.langCode]) ?: return@map null,
-                        subscription = enumValueOf(it[GlanciUserTable.subscription])
+                        subscription = enumValueOf(it[GlanciUserTable.subscription]),
+                        timestamp = it[GlanciUserTable.timestamp]
                     )
                 }
                 .singleOrNull()
@@ -72,7 +74,8 @@ class UserRepositoryImpl(
                         name = it[GlanciUserTable.name],
                         language = AppLanguage.fromLangCode(langCode = it[GlanciUserTable.langCode])
                             ?: return@mapNotNull null,
-                        subscription = enumValueOf(it[GlanciUserTable.subscription])
+                        subscription = enumValueOf(it[GlanciUserTable.subscription]),
+                        timestamp = it[GlanciUserTable.timestamp]
                     )
                 }
         }
@@ -87,7 +90,8 @@ class UserRepositoryImpl(
                     role = enumValueOf(it[GlanciUserTable.role]),
                     name = it[GlanciUserTable.name],
                     language = AppLanguage.fromLangCode(langCode = it[GlanciUserTable.langCode]) ?: return@mapNotNull null,
-                    subscription = enumValueOf(it[GlanciUserTable.subscription])
+                    subscription = enumValueOf(it[GlanciUserTable.subscription]),
+                    timestamp = it[GlanciUserTable.timestamp]
                 )
             }
         }
@@ -101,6 +105,7 @@ class UserRepositoryImpl(
                 it[name] = user.name
                 it[langCode] = user.language.langCode
                 it[subscription] = user.subscription.name
+                it[timestamp] = user.timestamp
             }
         } get GlanciUserTable.id
     }
@@ -113,18 +118,19 @@ class UserRepositoryImpl(
         }
     }
 
-    override fun saveUserEmail(userId: Int, email: String) {
+    override fun saveUserLanguage(userId: Int, language: AppLanguage, timestamp: Long) {
         transaction(database) {
             GlanciUserTable.update({ GlanciUserTable.id eq userId }) {
-                it[GlanciUserTable.email] = email
+                it[GlanciUserTable.langCode] = language.langCode
+                it[GlanciUserTable.timestamp] = timestamp
             }
         }
     }
 
-    override fun saveUserLanguage(userId: Int, language: AppLanguage) {
+    override fun saveUserEmail(userId: Int, email: String) {
         transaction(database) {
             GlanciUserTable.update({ GlanciUserTable.id eq userId }) {
-                it[GlanciUserTable.langCode] = language.langCode
+                it[GlanciUserTable.email] = email
             }
         }
     }

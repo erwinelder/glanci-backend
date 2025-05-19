@@ -12,6 +12,7 @@ data class UserWithTokenDto(
     val name: String,
     val langCode: String,
     val subscription: String,
+    val timestamp: Long,
     val token: String
 ) {
     companion object {
@@ -24,6 +25,7 @@ data class UserWithTokenDto(
                 name = user.name,
                 langCode = user.language.langCode,
                 subscription = user.subscription.name,
+                timestamp = user.timestamp,
                 token = token
             )
         }

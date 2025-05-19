@@ -4,8 +4,9 @@ import com.glanci.auth.data.repository.UserRepository
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.auth.error.UserError
-import com.glanci.core.domain.AppLanguage
-import com.glanci.core.domain.AppSubscription
+import com.glanci.core.domain.model.app.AppLanguage
+import com.glanci.core.domain.model.app.AppSubscription
+import com.glanci.core.utils.getCurrentTimestamp
 
 class UserService(
     private val userRepository: UserRepository
@@ -61,19 +62,19 @@ class UserService(
         }
     }
 
+    fun saveUserLanguage(userId: Int, language: AppLanguage, timestamp: Long) {
+        try {
+            userRepository.saveUserLanguage(userId = userId, language = language, timestamp = timestamp)
+        } catch (_: Exception) {
+            throw UserError.UserLanguageNotSaved()
+        }
+    }
+
     fun saveUserEmail(userId: Int, email: String) {
         try {
             userRepository.saveUserEmail(userId = userId, email = email)
         } catch (_: Exception) {
             throw UserError.UserEmailNotSaved()
-        }
-    }
-
-    fun saveUserLanguage(userId: Int, lang: AppLanguage) {
-        try {
-            userRepository.saveUserLanguage(userId = userId, language = lang)
-        } catch (_: Exception) {
-            throw UserError.UserLanguageNotSaved()
         }
     }
 
@@ -86,13 +87,16 @@ class UserService(
     }
 
     fun createUser(email: String, name: String, language: AppLanguage): User {
+        val timestamp = getCurrentTimestamp()
+
         try {
             val user = User(
                 email = email,
                 role = UserRole.User,
                 name = name,
                 language = language,
-                subscription = AppSubscription.Free
+                subscription = AppSubscription.Free,
+                timestamp = timestamp
             )
             val id = userRepository.createUser(user = user)
             return user.copy(id = id)

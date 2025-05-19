@@ -1,12 +1,6 @@
 package com.glanci.auth.routes
 
-import com.glanci.auth.domain.dto.CheckAppVersionRequestDto
-import com.glanci.auth.domain.dto.EmailUpdateRequestDto
-import com.glanci.auth.domain.dto.ResetPasswordRequestDto
-import com.glanci.auth.domain.dto.SignUpFormDto
-import com.glanci.auth.domain.dto.UpdatePasswordRequestDto
-import com.glanci.auth.domain.dto.UserCredentialsDto
-import com.glanci.auth.domain.dto.UserWithTokenDto
+import com.glanci.auth.domain.dto.*
 import com.glanci.auth.domain.model.AppVersionValidator
 import com.glanci.auth.domain.model.UserDataValidator
 import com.glanci.auth.domain.service.FirebaseAuthService
@@ -16,7 +10,7 @@ import com.glanci.auth.mapper.toDomainModel
 import com.glanci.auth.mapper.toDto
 import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.auth.utils.createJwtToken
-import com.glanci.core.domain.AppLanguage
+import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.utils.receiveOrNull
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -148,12 +142,14 @@ fun Routing.authRoutes(
                 call.respond(HttpStatusCode.OK)
             }
 
-            post("save-language/{langCode}") {
+            post("save-language") {
                 val userData = authorizeAtLeastAsUser()
-                val language = call.parameters["langCode"]?.let(AppLanguage::fromLangCode)
-                    ?: throw AuthError.LanguageCodeIsMissingOrInvalid()
+                val request = call.receiveOrNull<SaveLanguageRequestDto>()
+                    ?: throw AuthError.SaveLanguageRequestIsMissingOrInvalid()
+                val language = AppLanguage.fromLangCode(langCode = request.langCode)
+                    ?: throw AuthError.InvalidLanguage()
 
-                userService.saveUserLanguage(userId = userData.id, lang = language)
+                userService.saveUserLanguage(userId = userData.id, language = language, timestamp = request.timestamp)
 
                 call.respond(HttpStatusCode.OK)
             }
