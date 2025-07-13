@@ -1,6 +1,8 @@
 package com.glanci.core.di
 
 import com.glanci.core.data.db.GlanciDatabaseProvider
+import com.glanci.core.data.repository.UpdateTimeRepository
+import com.glanci.core.data.repository.UpdateTimeRepositoryImpl
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -24,6 +26,12 @@ val coreModule = module {
 
     single {
         GlanciDatabaseProvider()
+    }
+
+    /* ------------ Repository ------------ */
+
+    single<UpdateTimeRepository> {
+        UpdateTimeRepositoryImpl(databaseProvider = get())
     }
 
 }

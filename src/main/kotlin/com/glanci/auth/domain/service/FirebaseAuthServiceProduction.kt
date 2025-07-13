@@ -96,7 +96,10 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
 
         val user = lookup(idToken = authResponse.idToken)
 
-        if (!user.emailVerified) throw AuthError.EmailNotVerified()
+        if (!user.emailVerified) {
+            sendEmailVerification(idToken = user.idToken)
+            throw AuthError.EmailNotVerified()
+        }
 
         return user
     }

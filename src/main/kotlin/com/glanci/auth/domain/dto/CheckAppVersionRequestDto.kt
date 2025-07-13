@@ -6,5 +6,8 @@ import kotlinx.serialization.Serializable
 data class CheckAppVersionRequestDto(
     val primaryVersion: Int,
     val secondaryVersion: Int,
-    val tertiaryVersion: Int
+    val tertiaryVersion: Int,
+    val alphaVersion: Int?,
+    val betaVersion: Int?,
+    val releaseCandidateVersion: Int?
 )

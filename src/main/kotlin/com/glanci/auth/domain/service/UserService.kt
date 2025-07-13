@@ -95,7 +95,7 @@ class UserService(
                 role = UserRole.User,
                 name = name,
                 language = language,
-                subscription = AppSubscription.Free,
+                subscription = AppSubscription.Base,
                 timestamp = timestamp
             )
             val id = userRepository.createUser(user = user)

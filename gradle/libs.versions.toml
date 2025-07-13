@@ -1,4 +1,8 @@
 [versions]
+# Kotlin
+kotlin-version = "2.2.0"
+# Ktor
+ktor-version = "3.2.1"
 # Database
 hikaricp = "5.0.1"
 exposed-orm = "0.59.0"
@@ -6,24 +10,27 @@ postgres-version = "42.7.5"
 h2-version = "2.3.232"
 # Firebase
 firebase-admin = "9.4.3"
+# kRPC
+krpc-version = "0.8.1"
+# Koin
+koin = "4.1.0"
 # Utilities
-kotlinxDateTime = "0.6.2"
-# Other
-koin = "4.0.3"
-kotlin-version = "2.1.10"
-ktor-version = "3.1.3"
+kotlinxDateTime = "0.7.1"
 logback-version = "1.5.18"
 # Testing
 mockk = "1.14.2"
 
 [libraries]
-# Database
-hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
-exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed-orm" }
-exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed-orm" }
-exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed-orm" }
-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
-h2 = { module = "com.h2database:h2", version.ref = "h2-version" }
+# Ktor Client
+ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor-version" }
+# Ktor Server
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor-version" }
+ktor-server-netty-jvm = { module = "io.ktor:ktor-server-netty-jvm"}
+ktor-server-host-common = { module = "io.ktor:ktor-server-host-common", version.ref = "ktor-version" }
+ktor-server-compression = { module = "io.ktor:ktor-server-compression", version.ref = "ktor-version" }
+ktor-server-http-redirect = { module = "io.ktor:ktor-server-http-redirect", version.ref = "ktor-version" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor-version" }
 # Security
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor-version" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor-version" }
@@ -31,29 +38,35 @@ ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = 
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-version" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor-version" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor-version" }
-# Ktor Server
-ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
-ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor-version" }
-ktor-server-host-common = { module = "io.ktor:ktor-server-host-common", version.ref = "ktor-version" }
-ktor-server-compression = { module = "io.ktor:ktor-server-compression", version.ref = "ktor-version" }
-ktor-server-http-redirect = { module = "io.ktor:ktor-server-http-redirect", version.ref = "ktor-version" }
-ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor-version" }
-# Ktor Client
-ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor-version" }
+# Database
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed-orm" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed-orm" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed-orm" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
+h2 = { module = "com.h2database:h2", version.ref = "h2-version" }
+# Firebase
+firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
+# kRPC
+krpc-client = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-client", version.ref = "krpc-version" }
+krpc-ktor-client = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-client", version.ref = "krpc-version" }
+krpc-server = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-server", version.ref = "krpc-version" }
+krpc-ktor-server = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-server", version.ref = "krpc-version" }
+krpc-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-serialization-json", version.ref = "krpc-version" }
 # Koin
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
-# Firebase
-firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 # Utilities
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDateTime" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
 # Testing
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-version" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+krpc-test = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-test", version.ref = "krpc-version" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version" }
+krpc = { id = "org.jetbrains.kotlinx.rpc.plugin", version.ref = "krpc-version" }

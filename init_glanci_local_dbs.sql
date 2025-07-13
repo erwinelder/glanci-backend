@@ -1,0 +1,1 @@
+CREATE DATABASE glanci_db;

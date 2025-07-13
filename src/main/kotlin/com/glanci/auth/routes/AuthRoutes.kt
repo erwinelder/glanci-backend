@@ -9,7 +9,7 @@ import com.glanci.auth.error.AuthError
 import com.glanci.auth.mapper.toDomainModel
 import com.glanci.auth.mapper.toDto
 import com.glanci.auth.utils.authorizeAtLeastAsUser
-import com.glanci.auth.utils.createJwtToken
+import com.glanci.auth.utils.createJwt
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.utils.receiveOrNull
 import io.ktor.http.*
@@ -21,9 +21,6 @@ fun Routing.authRoutes(
     firebaseAuthService: FirebaseAuthService,
     userService: UserService
 ) {
-    val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
-        ?: throw AuthError.ErrorDuringExtractingJwtSecret()
-
     route("/auth") {
 
         post("/sign-in") {
@@ -33,7 +30,7 @@ fun Routing.authRoutes(
             firebaseAuthService.signIn(email = credentials.email, password = credentials.password)
 
             val user = userService.getUser(email = credentials.email)
-            val token = createJwtToken(user = user, secret = secret)
+            val token = createJwt(user = user)
 
             call.respond(
                 UserWithTokenDto.fromUserAndToken(user = user, token = token)
@@ -63,7 +60,7 @@ fun Routing.authRoutes(
             val email = firebaseAuthService.verifyEmail(oobCode = oobCode)
 
             val user = userService.getUser(email = email)
-            val token = createJwtToken(user = user, secret = secret)
+            val token = createJwt(user = user)
 
             call.respond(
                 UserWithTokenDto.fromUserAndToken(user = user, token = token)
@@ -122,7 +119,7 @@ fun Routing.authRoutes(
 
                 userService.saveUserEmail(userId = userData.id, email = email)
                 val user = userService.getUser(id = userData.id)
-                val token = createJwtToken(user = user, secret = secret)
+                val token = createJwt(user = user)
 
                 call.respond(
                     UserWithTokenDto.fromUserAndToken(user = user, token = token)

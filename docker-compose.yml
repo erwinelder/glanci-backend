@@ -1,0 +1,38 @@
+name: glanci-backend
+
+services:
+
+  glanci_database:
+    container_name: glanci_database
+    image: postgres:17.0-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - ./init_glanci_local_dbs.sql:/docker-entrypoint-initdb.d/init_glanci_local_dbs.sql
+
+  glanci_backend:
+    container_name: glanci_backend
+    image: glanci_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ENVIRONMENT: "development"
+      JWT_SECRET: "development-secret"
+      JWT_ISSUER: "glanci-backend.com"
+      JWT_AUDIENCE: "glanci-mobile"
+      JWT_REALM: "glanci-backend"
+      DATABASE_URL: "jdbc:postgresql://localhost:5432"
+      DATABASE_USERNAME: "postgres"
+      DATABASE_PASSWORD: "postgres"
+      RECREATE_DATABASE_TEST_DATA: "true"
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /glanci_backend

@@ -1,0 +1,19 @@
+package com.glanci.account.shared.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AccountQueryDto(
+    val userId: Int,
+    val id: Int,
+    val orderNum: Int,
+    val name: String,
+    val currency: String,
+    val balance: Double,
+    val color: String,
+    val hide: Boolean,
+    val hideBalance: Boolean,
+    val withoutBalance: Boolean,
+    val timestamp: Long,
+    val deleted: Boolean
+)
