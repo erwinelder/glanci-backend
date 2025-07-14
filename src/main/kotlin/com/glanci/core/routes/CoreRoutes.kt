@@ -1,8 +1,7 @@
 package com.glanci.core.routes
 
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.Routing
-import io.ktor.server.routing.get
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Routing.coreRoutes() {
     get("/") {

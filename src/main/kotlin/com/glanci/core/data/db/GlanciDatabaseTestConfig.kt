@@ -54,7 +54,13 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             }
         }
 
-        if (UpdateTimeTable.selectAll().empty()) {}
+        if (UpdateTimeTable.selectAll().empty()) {
+            UpdateTimeTable.insert {
+                it[userId] = 1
+                it[name] = "Account"
+                it[this.timestamp] = timestamp
+            }
+        }
 
         if (AccountTable.selectAll().empty()) {
             AccountTable.insert {

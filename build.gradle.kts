@@ -21,16 +21,26 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.core.jvm)
+    implementation(libs.ktor.server.websockets.jvm)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.rpc.krpc.ktor.server)
+    implementation(libs.kotlinx.rpc.krpc.serialization.json)
+
     // Ktor Client
+    implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.cio.jvm)
+//    implementation(libs.ktor.client.websockets)
     // Ktor Server
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
-    implementation(libs.ktor.server.netty.jvm)
-    implementation(libs.ktor.server.host.common)
+//    implementation(libs.ktor.server.netty.jvm)
+//    implementation(libs.ktor.server.host.common)
     implementation(libs.ktor.server.compression)
     implementation(libs.ktor.server.http.redirect)
     implementation(libs.ktor.server.status.pages)
+//    implementation(libs.ktor.server.websockets)
     // Security
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
@@ -50,8 +60,8 @@ dependencies {
     // kRPC
     implementation(libs.krpc.client)
     implementation(libs.krpc.ktor.client)
-    implementation(libs.krpc.server)
-    implementation(libs.krpc.ktor.server)
+//    implementation(libs.krpc.server)
+//    implementation(libs.krpc.ktor.server)
     implementation(libs.krpc.serialization.json)
     // Koin
     implementation(libs.koin.ktor)
