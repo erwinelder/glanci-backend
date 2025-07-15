@@ -39,7 +39,7 @@ dependencies {
     // kRPC
     implementation(libs.krpc.client)
     implementation(libs.krpc.ktor.client)
-//    implementation(libs.krpc.server)
+    implementation(libs.krpc.server)
     implementation(libs.krpc.ktor.server)
     implementation(libs.krpc.serialization.json)
     // Security

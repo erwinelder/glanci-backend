@@ -9,5 +9,6 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
-    <logger name="kotlinx.rpc" level="DEBUG" />
+    <logger name="kotlinx.rpc" level="INFO" />
+    <logger name="io.ktor.server.websocket" level="INFO"/>
 </configuration>
