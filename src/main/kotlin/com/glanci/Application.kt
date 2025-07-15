@@ -8,10 +8,7 @@ import com.glanci.core.routes.configureRouting
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.calllogging.*
-import io.ktor.server.request.*
 import kotlinx.rpc.krpc.ktor.server.Krpc
-import org.slf4j.event.Level
 
 fun main() {
     embeddedServer(
@@ -25,14 +22,6 @@ fun main() {
 fun Application.mainModule() {
     configureSerialization()
     configureHTTP()
-
-    install(CallLogging) {
-        level = Level.INFO
-        filter { call ->
-            call.request.path().startsWith("/account")
-        }
-    }
-
     install(Krpc)
     configureStatusPages()
     configureSecurity()
