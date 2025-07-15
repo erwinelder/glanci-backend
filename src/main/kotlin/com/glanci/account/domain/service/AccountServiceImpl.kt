@@ -21,7 +21,7 @@ class AccountServiceImpl(
         val user = authorizeAtLeastAsUser(token = token)
 
         return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = TableName.Account)
+            updateTimeRepository.getUpdateTime(userId = user.id, tableName = TableName.Account) ?: 0
         }
             .onFailure { throw UpdateTimeError.UpdateTimeNotFetched() }
             .getOrNull()
@@ -41,9 +41,10 @@ class AccountServiceImpl(
             accountRepository.upsertAccounts(
                 accounts = accounts.map { it.toDataModel(userId = user.id) }
             )
-            saveUpdateTime(timestamp = timestamp, userId = user.id)
         }
             .onFailure { throw AccountError.AccountsNotSaved() }
+
+        saveUpdateTime(timestamp = timestamp, userId = user.id)
     }
 
     override suspend fun getAccountsAfterTimestamp(timestamp: Long, token: String): List<AccountQueryDto>? {
