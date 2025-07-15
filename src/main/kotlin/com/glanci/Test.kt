@@ -7,6 +7,8 @@ import com.glanci.auth.utils.createJwt
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
 import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.rpc.krpc.ktor.client.installKrpc
@@ -16,21 +18,24 @@ import kotlinx.rpc.krpc.serialization.json.json
 import kotlinx.rpc.withService
 
 fun main() = runBlocking {
-    val ktorClient = HttpClient {
+    val ktorClient = HttpClient(OkHttp) {
         installKrpc()
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.ALL
+        }
     }
 
     val client = ktorClient.rpc {
         url {
-            host = "localhost"
-            port = 8080
+            protocol = URLProtocol.WSS
+            host = "walletglance-backend-hgddf5fwckbqf8bf.northeurope-01.azurewebsites.net"
+            port = 443
             encodedPath = "account"
         }
 
         rpcConfig {
-            serialization {
-                json()
-            }
+            serialization { json() }
         }
     }
 
