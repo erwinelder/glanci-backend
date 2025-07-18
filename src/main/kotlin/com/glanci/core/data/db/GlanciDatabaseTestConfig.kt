@@ -3,6 +3,7 @@ package com.glanci.core.data.db
 import com.glanci.account.data.db.AccountTable
 import com.glanci.auth.data.db.GlanciUserTable
 import com.glanci.auth.domain.model.UserRole
+import com.glanci.category.data.db.CategoryTable
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
@@ -14,7 +15,8 @@ fun configureUserManagementDatabaseTestData(database: Database) {
         val timestamp = getCurrentTimestamp()
 
         SchemaUtils.create(
-            GlanciUserTable, UpdateTimeTable, AccountTable
+            GlanciUserTable, UpdateTimeTable,
+            AccountTable, CategoryTable
         )
 
         val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
@@ -22,6 +24,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             GlanciUserTable.deleteAll()
             UpdateTimeTable.deleteAll()
             AccountTable.deleteAll()
+            CategoryTable.deleteAll()
         }
 
         if (GlanciUserTable.selectAll().empty()) {
@@ -88,6 +91,45 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[hide] = false
                 it[hideBalance] = false
                 it[withoutBalance] = false
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+        }
+
+        if (CategoryTable.selectAll().empty()) {
+            CategoryTable.insert {
+                it[userId] = 1
+                it[id] = 1
+                it[type] = "-"
+                it[orderNum] = 1
+                it[parentCategoryId] = null
+                it[name] = "Category 1"
+                it[iconName] = "default_icon"
+                it[colorName] = "Default"
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            CategoryTable.insert {
+                it[userId] = 1
+                it[id] = 2
+                it[type] = "-"
+                it[orderNum] = 2
+                it[parentCategoryId] = null
+                it[name] = "Category 2"
+                it[iconName] = "default_icon"
+                it[colorName] = "Default"
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            CategoryTable.insert {
+                it[userId] = 1
+                it[id] = 3
+                it[type] = "-"
+                it[orderNum] = 3
+                it[parentCategoryId] = 1
+                it[name] = "Subcategory 1.1"
+                it[iconName] = "default_icon"
+                it[colorName] = "Default"
                 it[this.timestamp] = timestamp
                 it[deleted] = false
             }

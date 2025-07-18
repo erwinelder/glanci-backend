@@ -1,7 +1,7 @@
 package com.glanci.account.shared.service
 
-import com.glanci.account.shared.model.AccountCommandDto
-import com.glanci.account.shared.model.AccountQueryDto
+import com.glanci.account.domain.dto.AccountCommandDto
+import com.glanci.account.domain.dto.AccountQueryDto
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc

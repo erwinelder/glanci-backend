@@ -3,6 +3,7 @@ package com.glanci.core.config
 import com.glanci.account.error.AccountError
 import com.glanci.auth.error.AuthError
 import com.glanci.auth.error.UserError
+import com.glanci.category.error.CategoryError
 import com.glanci.core.error.UpdateTimeError
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -42,6 +43,13 @@ fun Application.configureStatusPages(
         exception<AccountError> { call, cause ->
             call.respondText(
                 text = "Account error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<CategoryError> { call, cause ->
+            call.respondText(
+                text = "Category error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }

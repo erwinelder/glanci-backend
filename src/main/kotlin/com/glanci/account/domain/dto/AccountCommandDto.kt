@@ -1,10 +1,9 @@
-package com.glanci.account.shared.model
+package com.glanci.account.domain.dto
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AccountQueryDto(
-    val userId: Int,
+data class AccountCommandDto(
     val id: Int,
     val orderNum: Int,
     val name: String,

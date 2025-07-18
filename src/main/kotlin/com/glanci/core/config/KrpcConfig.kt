@@ -7,7 +7,6 @@ import kotlinx.rpc.krpc.serialization.json.json
 
 fun KrpcRoute.configureKrpc() {
     rpcConfig {
-        waitForServices = false
         serialization {
             json()
         }

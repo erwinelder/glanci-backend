@@ -4,8 +4,8 @@ import com.glanci.account.data.repository.AccountRepository
 import com.glanci.account.error.AccountError
 import com.glanci.account.mapper.toDataModel
 import com.glanci.account.mapper.toQueryDto
-import com.glanci.account.shared.model.AccountCommandDto
-import com.glanci.account.shared.model.AccountQueryDto
+import com.glanci.account.domain.dto.AccountCommandDto
+import com.glanci.account.domain.dto.AccountQueryDto
 import com.glanci.account.shared.service.AccountService
 import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.core.data.repository.UpdateTimeRepository
@@ -17,11 +17,14 @@ class AccountServiceImpl(
     private val updateTimeRepository: UpdateTimeRepository
 ) : AccountService {
 
+    private val tableName = TableName.Account
+
+
     override suspend fun getUpdateTime(token: String): Long? {
         val user = authorizeAtLeastAsUser(token = token)
 
         return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = TableName.Account) ?: 0
+            updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
         }
             .onFailure { throw UpdateTimeError.UpdateTimeNotFetched() }
             .getOrNull()
@@ -29,7 +32,7 @@ class AccountServiceImpl(
 
     private fun saveUpdateTime(timestamp: Long, userId: Int) {
         runCatching {
-            updateTimeRepository.saveUpdateTime(userId = userId, tableName = TableName.Account, timestamp = timestamp)
+            updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
         }
             .onFailure { throw UpdateTimeError.UpdateTimeNotSaved() }
     }

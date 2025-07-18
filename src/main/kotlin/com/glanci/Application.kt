@@ -2,6 +2,7 @@ package com.glanci
 
 import com.glanci.account.di.accountModule
 import com.glanci.auth.di.authModule
+import com.glanci.category.di.categoryModule
 import com.glanci.core.config.*
 import com.glanci.core.di.coreModule
 import com.glanci.core.routes.configureRouting
@@ -25,7 +26,10 @@ fun Application.mainModule() {
     install(Krpc)
     configureStatusPages()
     configureSecurity()
-    configureDI(coreModule, authModule, accountModule)
+    configureDI(
+        coreModule, authModule,
+        accountModule, categoryModule
+    )
 
     configureRouting()
 }
