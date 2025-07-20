@@ -4,7 +4,9 @@ import com.glanci.account.shared.service.AccountService
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.core.config.configureKrpc
 import com.glanci.mainModule
+import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
+import com.glanci.utils.getKrpcClient
 import io.ktor.http.*
 import io.ktor.server.application.port
 import io.ktor.server.testing.*
@@ -21,29 +23,18 @@ class AccountTest {
     @Test
     fun `test getAccountsAfterTimestamp`() = testApplication {
         application { mainModule() }
-        val ktorClient = createClient {
-            installKrpc {
-                waitForServices = true
-            }
-        }
-        val client: KtorRpcClient = ktorClient.rpc {
-            url {
-                host = "localhost"
-                port = 80
-                encodedPath = "account"
-            }
-            configureKrpc()
-        }
-        val token = getJwt(userId = 1, role = UserRole.User)
+        val client = getKrpcClient()
+        val rcpClient = client.configureRcp(path = "account")
+        val accountService = rcpClient.withService<AccountService>()
 
-        val accountService = client.withService<AccountService>()
+        val token = getJwt(userId = 1, role = UserRole.User)
 
         val accounts = accountService.getAccountsAfterTimestamp(timestamp = 0, token = token)
 
         assertNotNull(accounts)
         assertEquals(accounts.size, 2)
 
-        ktorClient.close()
+        client.close()
     }
 
 }

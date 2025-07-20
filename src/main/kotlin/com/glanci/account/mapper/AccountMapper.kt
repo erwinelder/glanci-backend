@@ -1,8 +1,8 @@
 package com.glanci.account.mapper
 
 import com.glanci.account.data.model.AccountDataModel
-import com.glanci.account.domain.dto.AccountCommandDto
-import com.glanci.account.domain.dto.AccountQueryDto
+import com.glanci.account.shared.dto.AccountCommandDto
+import com.glanci.account.shared.dto.AccountQueryDto
 
 
 fun AccountCommandDto.toDataModel(userId: Int): AccountDataModel {

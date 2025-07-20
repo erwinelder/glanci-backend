@@ -1,8 +1,8 @@
 package com.glanci.category.mapper
 
 import com.glanci.category.data.model.CategoryDataModel
-import com.glanci.category.domain.dto.CategoryCommandDto
-import com.glanci.category.domain.dto.CategoryQueryDto
+import com.glanci.category.shared.dto.CategoryCommandDto
+import com.glanci.category.shared.dto.CategoryQueryDto
 
 
 fun CategoryCommandDto.toDataModel(userId: Int): CategoryDataModel {

@@ -1,9 +1,10 @@
-package com.glanci.category.domain.dto
+package com.glanci.category.shared.dto
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CategoryCommandDto(
+data class CategoryQueryDto(
+    val userId: Int,
     val id: Int,
     val type: Char,
     val orderNum: Int,

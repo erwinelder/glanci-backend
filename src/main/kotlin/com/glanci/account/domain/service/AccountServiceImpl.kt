@@ -4,8 +4,8 @@ import com.glanci.account.data.repository.AccountRepository
 import com.glanci.account.error.AccountError
 import com.glanci.account.mapper.toDataModel
 import com.glanci.account.mapper.toQueryDto
-import com.glanci.account.domain.dto.AccountCommandDto
-import com.glanci.account.domain.dto.AccountQueryDto
+import com.glanci.account.shared.dto.AccountCommandDto
+import com.glanci.account.shared.dto.AccountQueryDto
 import com.glanci.account.shared.service.AccountService
 import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.core.data.repository.UpdateTimeRepository

@@ -3,6 +3,8 @@ package com.glanci.core.data.db
 import com.glanci.account.data.db.AccountTable
 import com.glanci.auth.data.db.GlanciUserTable
 import com.glanci.auth.domain.model.UserRole
+import com.glanci.budget.data.db.BudgetAccountAssociationTable
+import com.glanci.budget.data.db.BudgetTable
 import com.glanci.category.data.db.CategoryTable
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
@@ -16,7 +18,8 @@ fun configureUserManagementDatabaseTestData(database: Database) {
 
         SchemaUtils.create(
             GlanciUserTable, UpdateTimeTable,
-            AccountTable, CategoryTable
+            AccountTable, CategoryTable,
+            BudgetTable, BudgetAccountAssociationTable
         )
 
         val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
@@ -25,6 +28,8 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             UpdateTimeTable.deleteAll()
             AccountTable.deleteAll()
             CategoryTable.deleteAll()
+            BudgetTable.deleteAll()
+            BudgetAccountAssociationTable.deleteAll()
         }
 
         if (GlanciUserTable.selectAll().empty()) {
@@ -132,6 +137,39 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[colorName] = "Default"
                 it[this.timestamp] = timestamp
                 it[deleted] = false
+            }
+        }
+
+        if (BudgetTable.selectAll().empty()) {
+            BudgetTable.insert {
+                it[userId] = 1
+                it[id] = 1
+                it[amountLimit] = 1000.0
+                it[categoryId] = 1
+                it[name] = "Budget 1"
+                it[repeatingPeriod] = "Monthly"
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            BudgetTable.insert {
+                it[userId] = 1
+                it[id] = 2
+                it[amountLimit] = 500.0
+                it[categoryId] = 2
+                it[name] = "Budget 2"
+                it[repeatingPeriod] = "Weekly"
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            BudgetAccountAssociationTable.insert {
+                it[userId] = 1
+                it[budgetId] = 1
+                it[accountId] = 1
+            }
+            BudgetAccountAssociationTable.insert {
+                it[userId] = 1
+                it[budgetId] = 2
+                it[accountId] = 2
             }
         }
 

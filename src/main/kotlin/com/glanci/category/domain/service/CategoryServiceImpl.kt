@@ -5,8 +5,8 @@ import com.glanci.category.data.repository.CategoryRepository
 import com.glanci.category.error.CategoryError
 import com.glanci.category.mapper.toDataModel
 import com.glanci.category.mapper.toQueryDto
-import com.glanci.category.domain.dto.CategoryCommandDto
-import com.glanci.category.domain.dto.CategoryQueryDto
+import com.glanci.category.shared.dto.CategoryCommandDto
+import com.glanci.category.shared.dto.CategoryQueryDto
 import com.glanci.category.shared.service.CategoryService
 import com.glanci.core.data.repository.UpdateTimeRepository
 import com.glanci.core.domain.dto.TableName

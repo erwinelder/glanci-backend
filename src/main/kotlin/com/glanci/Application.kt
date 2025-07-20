@@ -2,6 +2,7 @@ package com.glanci
 
 import com.glanci.account.di.accountModule
 import com.glanci.auth.di.authModule
+import com.glanci.budget.di.budgetModule
 import com.glanci.category.di.categoryModule
 import com.glanci.core.config.*
 import com.glanci.core.di.coreModule
@@ -28,7 +29,8 @@ fun Application.mainModule() {
     configureSecurity()
     configureDI(
         coreModule, authModule,
-        accountModule, categoryModule
+        accountModule, categoryModule,
+        budgetModule
     )
 
     configureRouting()
