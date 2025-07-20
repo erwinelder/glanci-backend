@@ -19,13 +19,12 @@ class CategoryCollectionTest {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "categoryCollection")
-        val categoryService = rcpClient.withService<CategoryCollectionService>()
+        val categoryCollectionService = rcpClient.withService<CategoryCollectionService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val collectionsWithAssociations = categoryService.getCategoryCollectionsWithAssociationsAfterTimestamp(
-            timestamp = 0, token = token
-        )
+        val collectionsWithAssociations = categoryCollectionService
+            .getCategoryCollectionsWithAssociationsAfterTimestamp(timestamp = 0, token = token)
         val associations = collectionsWithAssociations?.flatMap { it.associations }
 
         assertNotNull(collectionsWithAssociations)

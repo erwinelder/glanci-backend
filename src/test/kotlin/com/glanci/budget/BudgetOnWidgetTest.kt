@@ -15,20 +15,18 @@ import kotlin.test.assertNotNull
 class BudgetOnWidgetTest {
 
     @Test
-    fun `test getBudgetsWithAssociationsAfterTimestamp`() = testApplication {
+    fun `test getBudgetsOnWidgetAfterTimestamp`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "budget")
-        val budgetService = rcpClient.withService<BudgetOnWidgetService>()
+        val budgetOnWidgetService = rcpClient.withService<BudgetOnWidgetService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val budgetsWithAssociations = budgetService.getBudgetsOnWidgetAfterTimestamp(
-            timestamp = 0, token = token
-        )
+        val budgetsOnWidget = budgetOnWidgetService.getBudgetsOnWidgetAfterTimestamp(timestamp = 0, token = token)
 
-        assertNotNull(budgetsWithAssociations)
-        assertEquals(budgetsWithAssociations.size, 2)
+        assertNotNull(budgetsOnWidget)
+        assertEquals(budgetsOnWidget.size, 2)
 
         client.close()
     }

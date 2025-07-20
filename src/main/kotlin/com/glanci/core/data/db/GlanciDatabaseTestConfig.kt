@@ -12,6 +12,7 @@ import com.glanci.categoryCollection.data.db.CategoryCollectionTable
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
+import com.glanci.navigation.data.db.NavigationButtonTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -23,7 +24,8 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             GlanciUserTable, UpdateTimeTable,
             AccountTable, CategoryTable,
             CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
-            BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable
+            BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
+            NavigationButtonTable
         )
 
         val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
@@ -37,6 +39,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             BudgetTable.deleteAll()
             BudgetAccountAssociationTable.deleteAll()
             BudgetOnWidgetTable.deleteAll()
+            NavigationButtonTable.deleteAll()
         }
 
         if (GlanciUserTable.selectAll().empty()) {
@@ -207,6 +210,44 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             BudgetOnWidgetTable.insert {
                 it[userId] = 1
                 it[budgetId] = 2
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+        }
+
+        if (NavigationButtonTable.selectAll().empty()) {
+            NavigationButtonTable.insert {
+                it[userId] = 1
+                it[screenName] = "Home"
+                it[orderNum] = 1
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            NavigationButtonTable.insert {
+                it[userId] = 1
+                it[screenName] = "Records"
+                it[orderNum] = 2
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            NavigationButtonTable.insert {
+                it[userId] = 1
+                it[screenName] = "CategoryStatistics"
+                it[orderNum] = 3
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            NavigationButtonTable.insert {
+                it[userId] = 1
+                it[screenName] = "Budgets"
+                it[orderNum] = 4
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            NavigationButtonTable.insert {
+                it[userId] = 1
+                it[screenName] = "Settings"
+                it[orderNum] = 5
                 it[this.timestamp] = timestamp
                 it[deleted] = false
             }

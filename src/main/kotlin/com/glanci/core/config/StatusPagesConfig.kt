@@ -8,6 +8,7 @@ import com.glanci.budget.error.BudgetOnWidgetError
 import com.glanci.category.error.CategoryError
 import com.glanci.categoryCollection.error.CategoryCollectionError
 import com.glanci.core.error.UpdateTimeError
+import com.glanci.navigation.error.NavigationButtonError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
@@ -74,6 +75,13 @@ fun Application.configureStatusPages(
         exception<BudgetOnWidgetError> { call, cause ->
             call.respondText(
                 text = "BudgetOnWidget error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<NavigationButtonError> { call, cause ->
+            call.respondText(
+                text = "NavigationButton error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }

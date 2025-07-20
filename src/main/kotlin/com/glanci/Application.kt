@@ -8,6 +8,7 @@ import com.glanci.categoryCollection.di.categoryCollectionModule
 import com.glanci.core.config.*
 import com.glanci.core.di.coreModule
 import com.glanci.core.routes.configureRouting
+import com.glanci.navigation.di.navigationButtonModule
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -31,7 +32,8 @@ fun Application.mainModule() {
     configureDI(
         coreModule, authModule,
         accountModule, categoryModule,
-        categoryCollectionModule, budgetModule
+        categoryCollectionModule, budgetModule,
+        navigationButtonModule
     )
 
     configureRouting()
