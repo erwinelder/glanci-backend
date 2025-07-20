@@ -18,6 +18,6 @@ object BudgetTable : Table("budget") {
     override val primaryKey = PrimaryKey(userId, id)
 
     init {
-        foreignKey(userId, categoryId, target = CategoryTable.primaryKey)
+        foreignKey(userId, categoryId, target = CategoryTable.primaryKey, onDelete = ReferenceOption.CASCADE)
     }
 }

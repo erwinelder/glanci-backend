@@ -13,7 +13,7 @@ object BudgetAccountAssociationTable : Table("budget_account_association") {
     override val primaryKey = PrimaryKey(userId, budgetId, accountId)
 
     init {
-        foreignKey(userId, budgetId, target = BudgetTable.primaryKey)
-        foreignKey(userId, accountId, target = AccountTable.primaryKey)
+        foreignKey(userId, budgetId, target = BudgetTable.primaryKey, onDelete = ReferenceOption.CASCADE)
+        foreignKey(userId, accountId, target = AccountTable.primaryKey, onDelete = ReferenceOption.CASCADE)
     }
 }
