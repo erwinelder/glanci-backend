@@ -4,6 +4,7 @@ import com.glanci.account.data.db.AccountTable
 import com.glanci.auth.data.db.GlanciUserTable
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.budget.data.db.BudgetAccountAssociationTable
+import com.glanci.budget.data.db.BudgetOnWidgetTable
 import com.glanci.budget.data.db.BudgetTable
 import com.glanci.category.data.db.CategoryTable
 import com.glanci.core.domain.model.app.AppLanguage
@@ -19,7 +20,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
         SchemaUtils.create(
             GlanciUserTable, UpdateTimeTable,
             AccountTable, CategoryTable,
-            BudgetTable, BudgetAccountAssociationTable
+            BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable
         )
 
         val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
@@ -30,6 +31,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             CategoryTable.deleteAll()
             BudgetTable.deleteAll()
             BudgetAccountAssociationTable.deleteAll()
+            BudgetOnWidgetTable.deleteAll()
         }
 
         if (GlanciUserTable.selectAll().empty()) {
@@ -170,6 +172,21 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[userId] = 1
                 it[budgetId] = 2
                 it[accountId] = 2
+            }
+        }
+
+        if (BudgetOnWidgetTable.selectAll().empty()) {
+            BudgetOnWidgetTable.insert {
+                it[userId] = 1
+                it[budgetId] = 1
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            BudgetOnWidgetTable.insert {
+                it[userId] = 1
+                it[budgetId] = 2
+                it[this.timestamp] = timestamp
+                it[deleted] = false
             }
         }
 
