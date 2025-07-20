@@ -4,6 +4,7 @@ import com.glanci.account.di.accountModule
 import com.glanci.auth.di.authModule
 import com.glanci.budget.di.budgetModule
 import com.glanci.category.di.categoryModule
+import com.glanci.categoryCollection.di.categoryCollectionModule
 import com.glanci.core.config.*
 import com.glanci.core.di.coreModule
 import com.glanci.core.routes.configureRouting
@@ -30,7 +31,7 @@ fun Application.mainModule() {
     configureDI(
         coreModule, authModule,
         accountModule, categoryModule,
-        budgetModule
+        categoryCollectionModule, budgetModule
     )
 
     configureRouting()

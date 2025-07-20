@@ -5,6 +5,7 @@ import com.glanci.auth.routes.authRoutes
 import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.budget.shared.service.BudgetService
 import com.glanci.category.shared.service.CategoryService
+import com.glanci.categoryCollection.shared.service.CategoryCollectionService
 import com.glanci.core.config.configureKrpc
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -25,6 +26,10 @@ fun Application.configureRouting() {
         rpc("/category") {
             configureKrpc()
             registerService<CategoryService> { this@configureRouting.get() }
+        }
+        rpc("/categoryCollection") {
+            configureKrpc()
+            registerService<CategoryCollectionService> { this@configureRouting.get() }
         }
         rpc("/budget") {
             configureKrpc()

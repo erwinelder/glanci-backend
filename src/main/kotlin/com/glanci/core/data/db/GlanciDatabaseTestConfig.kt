@@ -7,6 +7,8 @@ import com.glanci.budget.data.db.BudgetAccountAssociationTable
 import com.glanci.budget.data.db.BudgetOnWidgetTable
 import com.glanci.budget.data.db.BudgetTable
 import com.glanci.category.data.db.CategoryTable
+import com.glanci.categoryCollection.data.db.CategoryCollectionCategoryAssociationTable
+import com.glanci.categoryCollection.data.db.CategoryCollectionTable
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
@@ -20,6 +22,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
         SchemaUtils.create(
             GlanciUserTable, UpdateTimeTable,
             AccountTable, CategoryTable,
+            CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
             BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable
         )
 
@@ -29,6 +32,8 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             UpdateTimeTable.deleteAll()
             AccountTable.deleteAll()
             CategoryTable.deleteAll()
+            CategoryCollectionTable.deleteAll()
+            CategoryCollectionCategoryAssociationTable.deleteAll()
             BudgetTable.deleteAll()
             BudgetAccountAssociationTable.deleteAll()
             BudgetOnWidgetTable.deleteAll()
@@ -139,6 +144,23 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[colorName] = "Default"
                 it[this.timestamp] = timestamp
                 it[deleted] = false
+            }
+        }
+
+        if (CategoryCollectionTable.selectAll().empty()) {
+            CategoryCollectionTable.insert {
+                it[userId] = 1
+                it[id] = 1
+                it[orderNum] = 1
+                it[name] = "Collection 1"
+                it[type] = "-"
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            CategoryCollectionCategoryAssociationTable.insert {
+                it[userId] = 1
+                it[collectionId] = 1
+                it[categoryId] = 1
             }
         }
 

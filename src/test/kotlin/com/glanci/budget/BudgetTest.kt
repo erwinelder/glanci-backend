@@ -26,9 +26,12 @@ class BudgetTest {
         val budgetsWithAssociations = budgetService.getBudgetsWithAssociationsAfterTimestamp(
             timestamp = 0, token = token
         )
+        val associations = budgetsWithAssociations?.flatMap { it.associations }
 
         assertNotNull(budgetsWithAssociations)
         assertEquals(budgetsWithAssociations.size, 2)
+        assertNotNull(associations)
+        assertEquals(associations.size, 2)
 
         client.close()
     }
