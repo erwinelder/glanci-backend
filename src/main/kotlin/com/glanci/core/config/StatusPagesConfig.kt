@@ -3,7 +3,10 @@ package com.glanci.core.config
 import com.glanci.account.error.AccountError
 import com.glanci.auth.error.AuthError
 import com.glanci.auth.error.UserError
+import com.glanci.budget.error.BudgetError
+import com.glanci.budget.error.BudgetOnWidgetError
 import com.glanci.category.error.CategoryError
+import com.glanci.categoryCollection.error.CategoryCollectionError
 import com.glanci.core.error.UpdateTimeError
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -35,7 +38,7 @@ fun Application.configureStatusPages(
 
         exception<UpdateTimeError> { call, cause ->
             call.respondText(
-                text = "Update Time error ${cause.statusCode.value}: ${cause.message}",
+                text = "UpdateTime error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }
@@ -50,6 +53,27 @@ fun Application.configureStatusPages(
         exception<CategoryError> { call, cause ->
             call.respondText(
                 text = "Category error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<CategoryCollectionError> { call, cause ->
+            call.respondText(
+                text = "CategoryCollection error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<BudgetError> { call, cause ->
+            call.respondText(
+                text = "Budget error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<BudgetOnWidgetError> { call, cause ->
+            call.respondText(
+                text = "BudgetOnWidget error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }
