@@ -19,11 +19,11 @@ class CategoryTest {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "category")
-        val categoryService = rcpClient.withService<CategoryService>()
+        val service = rcpClient.withService<CategoryService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val categories = categoryService.getCategoriesAfterTimestamp(timestamp = 0, token = token)
+        val categories = service.getCategoriesAfterTimestamp(timestamp = 0, token = token)
 
         assertNotNull(categories)
         assertEquals(categories.size, 3)

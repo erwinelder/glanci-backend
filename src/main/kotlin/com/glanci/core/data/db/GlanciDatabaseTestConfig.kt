@@ -13,6 +13,7 @@ import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.navigation.data.db.NavigationButtonTable
+import com.glanci.personalization.data.db.WidgetTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -25,7 +26,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             AccountTable, CategoryTable,
             CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
             BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
-            NavigationButtonTable
+            WidgetTable, NavigationButtonTable
         )
 
         val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
@@ -39,6 +40,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             BudgetTable.deleteAll()
             BudgetAccountAssociationTable.deleteAll()
             BudgetOnWidgetTable.deleteAll()
+            WidgetTable.deleteAll()
             NavigationButtonTable.deleteAll()
         }
 
@@ -210,6 +212,30 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             BudgetOnWidgetTable.insert {
                 it[userId] = 1
                 it[budgetId] = 2
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+        }
+
+        if (WidgetTable.selectAll().empty()) {
+            WidgetTable.insert {
+                it[userId] = 1
+                it[name] = "Widget 1"
+                it[orderNum] = 1
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            WidgetTable.insert {
+                it[userId] = 1
+                it[name] = "Widget 2"
+                it[orderNum] = 2
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            WidgetTable.insert {
+                it[userId] = 1
+                it[name] = "Widget 3"
+                it[orderNum] = 3
                 it[this.timestamp] = timestamp
                 it[deleted] = false
             }

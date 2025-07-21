@@ -19,11 +19,11 @@ class AccountTest {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "account")
-        val accountService = rcpClient.withService<AccountService>()
+        val service = rcpClient.withService<AccountService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val accounts = accountService.getAccountsAfterTimestamp(timestamp = 0, token = token)
+        val accounts = service.getAccountsAfterTimestamp(timestamp = 0, token = token)
 
         assertNotNull(accounts)
         assertEquals(accounts.size, 2)

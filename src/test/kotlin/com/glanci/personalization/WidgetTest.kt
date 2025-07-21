@@ -1,8 +1,8 @@
-package com.glanci.budget
+package com.glanci.personalization
 
 import com.glanci.auth.domain.model.UserRole
-import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.mainModule
+import com.glanci.personalization.shared.service.WidgetService
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient
@@ -12,21 +12,21 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class BudgetOnWidgetTest {
+class WidgetTest {
 
     @Test
-    fun `test getBudgetsOnWidgetAfterTimestamp`() = testApplication {
+    fun `test getWidgetsAfterTimestamp`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
-        val rcpClient = client.configureRcp(path = "budget")
-        val service = rcpClient.withService<BudgetOnWidgetService>()
+        val rcpClient = client.configureRcp(path = "personalization")
+        val service = rcpClient.withService<WidgetService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val budgetsOnWidget = service.getBudgetsOnWidgetAfterTimestamp(timestamp = 0, token = token)
+        val widgets = service.getWidgetsAfterTimestamp(timestamp = 0, token = token)
 
-        assertNotNull(budgetsOnWidget)
-        assertEquals(budgetsOnWidget.size, 2)
+        assertNotNull(widgets)
+        assertEquals(widgets.size, 3)
 
         client.close()
     }

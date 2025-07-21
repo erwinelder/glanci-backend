@@ -18,12 +18,12 @@ class NavigationButtonTest {
     fun `test getNavigationButtonsAfterTimestamp`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
-        val rcpClient = client.configureRcp(path = "navigationButton")
-        val categoryService = rcpClient.withService<NavigationButtonService>()
+        val rcpClient = client.configureRcp(path = "navigation")
+        val service = rcpClient.withService<NavigationButtonService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val navigationButtons = categoryService.getNavigationButtonsAfterTimestamp(timestamp = 0, token = token)
+        val navigationButtons = service.getNavigationButtonsAfterTimestamp(timestamp = 0, token = token)
 
         assertNotNull(navigationButtons)
         assertEquals(navigationButtons.size, 5)

@@ -8,6 +8,7 @@ import com.glanci.category.shared.service.CategoryService
 import com.glanci.categoryCollection.shared.service.CategoryCollectionService
 import com.glanci.core.config.configureKrpc
 import com.glanci.navigation.shared.service.NavigationButtonService
+import com.glanci.personalization.shared.service.WidgetService
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import kotlinx.rpc.krpc.ktor.server.rpc
@@ -37,7 +38,11 @@ fun Application.configureRouting() {
             registerService<BudgetService> { this@configureRouting.get() }
             registerService<BudgetOnWidgetService> { this@configureRouting.get() }
         }
-        rpc("/navigationButton") {
+        rpc("/personalization") {
+            configureKrpc()
+            registerService<WidgetService> { this@configureRouting.get() }
+        }
+        rpc("/navigation") {
             configureKrpc()
             registerService<NavigationButtonService> { this@configureRouting.get() }
         }

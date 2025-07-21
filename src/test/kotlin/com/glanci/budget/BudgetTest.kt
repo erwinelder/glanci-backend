@@ -19,13 +19,11 @@ class BudgetTest {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "budget")
-        val budgetService = rcpClient.withService<BudgetService>()
+        val service = rcpClient.withService<BudgetService>()
 
         val token = getJwt(userId = 1, role = UserRole.User)
 
-        val budgetsWithAssociations = budgetService.getBudgetsWithAssociationsAfterTimestamp(
-            timestamp = 0, token = token
-        )
+        val budgetsWithAssociations = service.getBudgetsWithAssociationsAfterTimestamp(timestamp = 0, token = token)
         val associations = budgetsWithAssociations?.flatMap { it.associations }
 
         assertNotNull(budgetsWithAssociations)
