@@ -17,7 +17,7 @@ class RecordServiceImpl(
     private val updateTimeRepository: UpdateTimeRepository
 ) : RecordService {
 
-    private val tableName = TableName.Account
+    private val tableName = TableName.Record
 
 
     override suspend fun getUpdateTime(token: String): Long? {
