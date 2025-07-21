@@ -22,6 +22,7 @@ fun AccountCommandDto.toDataModel(userId: Int): AccountDataModel {
     )
 }
 
+
 fun AccountDataModel.toQueryDto(): AccountQueryDto {
     return AccountQueryDto(
         userId = userId,

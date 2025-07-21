@@ -11,6 +11,7 @@ import com.glanci.core.error.UpdateTimeError
 import com.glanci.navigation.error.NavigationButtonError
 import com.glanci.personalization.error.WidgetError
 import com.glanci.record.error.RecordError
+import com.glanci.transfer.error.TransferError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
@@ -63,6 +64,13 @@ fun Application.configureStatusPages(
         exception<RecordError> { call, cause ->
             call.respondText(
                 text = "Record error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<TransferError> { call, cause ->
+            call.respondText(
+                text = "Transfer error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }

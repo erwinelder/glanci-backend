@@ -16,6 +16,7 @@ import com.glanci.navigation.data.db.NavigationButtonTable
 import com.glanci.personalization.data.db.WidgetTable
 import com.glanci.record.data.db.RecordItemTable
 import com.glanci.record.data.db.RecordTable
+import com.glanci.transfer.data.db.TransferTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -26,7 +27,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
         SchemaUtils.create(
             GlanciUserTable, UpdateTimeTable,
             AccountTable, CategoryTable,
-            RecordTable, RecordItemTable,
+            RecordTable, RecordItemTable, TransferTable,
             CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
             BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
             WidgetTable, NavigationButtonTable
@@ -42,6 +43,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
 
             RecordTable.deleteAll()
             RecordItemTable.deleteAll()
+            TransferTable.deleteAll()
 
             CategoryCollectionTable.deleteAll()
             CategoryCollectionCategoryAssociationTable.deleteAll()
@@ -225,6 +227,37 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[categoryId] = 4
                 it[subcategoryId] = null
                 it[note] = "Item 1"
+            }
+        }
+
+        if (TransferTable.selectAll().empty()) {
+            TransferTable.insert {
+                it[userId] = 1
+                it[id] = 1
+                it[date] = timestamp
+                it[senderAccountId] = 1
+                it[receiverAccountId] = 2
+                it[senderAmount] = 100.0
+                it[receiverAmount] = 100.0
+                it[senderRate] = 1.0
+                it[receiverRate] = 1.0
+                it[includeInBudgets] = true
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            TransferTable.insert {
+                it[userId] = 1
+                it[id] = 2
+                it[date] = timestamp
+                it[senderAccountId] = 2
+                it[receiverAccountId] = 1
+                it[senderAmount] = 50.0
+                it[receiverAmount] = 100.0
+                it[senderRate] = 1.0
+                it[receiverRate] = 2.0
+                it[includeInBudgets] = true
+                it[this.timestamp] = timestamp
+                it[deleted] = false
             }
         }
 
