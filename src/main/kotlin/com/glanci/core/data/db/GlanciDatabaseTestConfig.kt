@@ -14,6 +14,8 @@ import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.navigation.data.db.NavigationButtonTable
 import com.glanci.personalization.data.db.WidgetTable
+import com.glanci.record.data.db.RecordItemTable
+import com.glanci.record.data.db.RecordTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -24,6 +26,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
         SchemaUtils.create(
             GlanciUserTable, UpdateTimeTable,
             AccountTable, CategoryTable,
+            RecordTable, RecordItemTable,
             CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
             BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
             WidgetTable, NavigationButtonTable
@@ -33,13 +36,20 @@ fun configureUserManagementDatabaseTestData(database: Database) {
         if (recreateDatabaseTestData == true) {
             GlanciUserTable.deleteAll()
             UpdateTimeTable.deleteAll()
+
             AccountTable.deleteAll()
             CategoryTable.deleteAll()
+
+            RecordTable.deleteAll()
+            RecordItemTable.deleteAll()
+
             CategoryCollectionTable.deleteAll()
             CategoryCollectionCategoryAssociationTable.deleteAll()
+
             BudgetTable.deleteAll()
             BudgetAccountAssociationTable.deleteAll()
             BudgetOnWidgetTable.deleteAll()
+
             WidgetTable.deleteAll()
             NavigationButtonTable.deleteAll()
         }
@@ -120,7 +130,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[type] = "-"
                 it[orderNum] = 1
                 it[parentCategoryId] = null
-                it[name] = "Category 1"
+                it[name] = "Expense Category 1"
                 it[iconName] = "default_icon"
                 it[colorName] = "Default"
                 it[this.timestamp] = timestamp
@@ -132,7 +142,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[type] = "-"
                 it[orderNum] = 2
                 it[parentCategoryId] = null
-                it[name] = "Category 2"
+                it[name] = "Expense Category 2"
                 it[iconName] = "default_icon"
                 it[colorName] = "Default"
                 it[this.timestamp] = timestamp
@@ -144,11 +154,77 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[type] = "-"
                 it[orderNum] = 3
                 it[parentCategoryId] = 1
-                it[name] = "Subcategory 1.1"
+                it[name] = "Expense Subcategory 1.1"
                 it[iconName] = "default_icon"
                 it[colorName] = "Default"
                 it[this.timestamp] = timestamp
                 it[deleted] = false
+            }
+            CategoryTable.insert {
+                it[userId] = 1
+                it[id] = 4
+                it[type] = "+"
+                it[orderNum] = 1
+                it[parentCategoryId] = null
+                it[name] = "Income Category 1"
+                it[iconName] = "default_icon"
+                it[colorName] = "Default"
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+        }
+
+        if (RecordTable.selectAll().empty()) {
+            RecordTable.insert {
+                it[userId] = 1
+                it[id] = 1
+                it[date] = timestamp
+                it[type] = "-"
+                it[accountId] = 1
+                it[includeInBudgets] = true
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            RecordItemTable.insert {
+                it[userId] = 1
+                it[id] = 1
+                it[recordId] = 1
+                it[totalAmount] = 100.0
+                it[quantity] = 1
+                it[categoryId] = 2
+                it[subcategoryId] = null
+                it[note] = "Item 1"
+            }
+            RecordItemTable.insert {
+                it[userId] = 1
+                it[id] = 2
+                it[recordId] = 1
+                it[totalAmount] = 50.0
+                it[quantity] = null
+                it[categoryId] = 1
+                it[subcategoryId] = 3
+                it[note] = "Item 2"
+            }
+
+            RecordTable.insert {
+                it[userId] = 1
+                it[id] = 2
+                it[date] = timestamp
+                it[type] = "+"
+                it[accountId] = 2
+                it[includeInBudgets] = true
+                it[this.timestamp] = timestamp
+                it[deleted] = false
+            }
+            RecordItemTable.insert {
+                it[userId] = 1
+                it[id] = 3
+                it[recordId] = 2
+                it[totalAmount] = 200.0
+                it[quantity] = 2
+                it[categoryId] = 4
+                it[subcategoryId] = null
+                it[note] = "Item 1"
             }
         }
 

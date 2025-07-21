@@ -26,7 +26,7 @@ class CategoryTest {
         val categories = service.getCategoriesAfterTimestamp(timestamp = 0, token = token)
 
         assertNotNull(categories)
-        assertEquals(categories.size, 3)
+        assertEquals(categories.size, 4)
 
         client.close()
     }
