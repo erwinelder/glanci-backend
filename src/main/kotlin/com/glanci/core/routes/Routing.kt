@@ -6,7 +6,6 @@ import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.budget.shared.service.BudgetService
 import com.glanci.category.shared.service.CategoryService
 import com.glanci.categoryCollection.shared.service.CategoryCollectionService
-import com.glanci.core.config.configureKrpc
 import com.glanci.navigation.shared.service.NavigationButtonService
 import com.glanci.personalization.shared.service.WidgetService
 import com.glanci.record.shared.service.RecordService
@@ -24,36 +23,28 @@ fun Application.configureRouting() {
             userService = this@configureRouting.get()
         )
         rpc("/account") {
-            configureKrpc()
             registerService<AccountService> { this@configureRouting.get() }
         }
         rpc("/category") {
-            configureKrpc()
             registerService<CategoryService> { this@configureRouting.get() }
         }
         rpc("/record") {
-            configureKrpc()
             registerService<RecordService> { this@configureRouting.get() }
         }
         rpc("/transfer") {
-            configureKrpc()
             registerService<TransferService> { this@configureRouting.get() }
         }
         rpc("/categoryCollection") {
-            configureKrpc()
             registerService<CategoryCollectionService> { this@configureRouting.get() }
         }
         rpc("/budget") {
-            configureKrpc()
             registerService<BudgetService> { this@configureRouting.get() }
             registerService<BudgetOnWidgetService> { this@configureRouting.get() }
         }
         rpc("/personalization") {
-            configureKrpc()
             registerService<WidgetService> { this@configureRouting.get() }
         }
         rpc("/navigation") {
-            configureKrpc()
             registerService<NavigationButtonService> { this@configureRouting.get() }
         }
     }

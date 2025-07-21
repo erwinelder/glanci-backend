@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.krpc.ktor.client)
     implementation(libs.krpc.server)
     implementation(libs.krpc.ktor.server)
-    implementation(libs.krpc.serialization.json)
+    implementation(libs.krpc.serialization.protobuf)
     // Security
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
