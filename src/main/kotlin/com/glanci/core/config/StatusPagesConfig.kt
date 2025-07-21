@@ -10,6 +10,7 @@ import com.glanci.categoryCollection.error.CategoryCollectionError
 import com.glanci.core.error.UpdateTimeError
 import com.glanci.navigation.error.NavigationButtonError
 import com.glanci.personalization.error.WidgetError
+import com.glanci.record.error.RecordError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
@@ -55,6 +56,13 @@ fun Application.configureStatusPages(
         exception<CategoryError> { call, cause ->
             call.respondText(
                 text = "Category error ${cause.statusCode.value}: ${cause.message}",
+                status = cause.statusCode
+            )
+        }
+
+        exception<RecordError> { call, cause ->
+            call.respondText(
+                text = "Record error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }
