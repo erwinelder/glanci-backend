@@ -2,9 +2,10 @@ package com.glanci.auth.di
 
 import com.glanci.auth.data.repository.UserRepository
 import com.glanci.auth.data.repository.UserRepositoryImpl
+import com.glanci.auth.domain.service.AuthServiceImpl
 import com.glanci.auth.domain.service.FirebaseAuthService
-import com.glanci.auth.domain.service.UserService
 import com.glanci.auth.domain.service.getFirebaseAuthService
+import com.glanci.auth.shared.service.AuthService
 import org.koin.dsl.module
 
 val authModule = module {
@@ -21,8 +22,11 @@ val authModule = module {
         getFirebaseAuthService()
     }
 
-    single {
-        UserService(userRepository = get())
+    single<AuthService> {
+        AuthServiceImpl(
+            firebaseAuthService = get(),
+            userRepository = get()
+        )
     }
 
 }

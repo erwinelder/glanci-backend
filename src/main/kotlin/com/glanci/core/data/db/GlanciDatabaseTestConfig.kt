@@ -22,20 +22,20 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun configureUserManagementDatabaseTestData(database: Database) {
     transaction(database) {
-        val timestamp = getCurrentTimestamp()
-
-        SchemaUtils.create(
-            GlanciUserTable, UpdateTimeTable,
-            AccountTable, CategoryTable,
-            RecordTable, RecordItemTable, TransferTable,
-            CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
-            BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
-            WidgetTable, NavigationButtonTable
-        )
-
         val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
+
         if (recreateDatabaseTestData == true) {
+            SchemaUtils.create(
+                GlanciUserTable, UpdateTimeTable,
+                AccountTable, CategoryTable,
+                RecordTable, RecordItemTable, TransferTable,
+                CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
+                BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
+                WidgetTable, NavigationButtonTable
+            )
+
             GlanciUserTable.deleteAll()
+            exec("TRUNCATE TABLE \"glanci_user\" RESTART IDENTITY CASCADE;")
             UpdateTimeTable.deleteAll()
 
             AccountTable.deleteAll()
@@ -55,6 +55,9 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             WidgetTable.deleteAll()
             NavigationButtonTable.deleteAll()
         }
+    }
+    transaction(database) {
+        val timestamp = getCurrentTimestamp()
 
         if (GlanciUserTable.selectAll().empty()) {
             GlanciUserTable.insert {
@@ -84,6 +87,7 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[subscription] = AppSubscription.Premium.name
                 it[this.timestamp] = timestamp
             }
+            exec("SELECT setval('glanci_user_id_seq', (SELECT MAX(id) FROM glanci_user));")
         }
 
         if (UpdateTimeTable.selectAll().empty()) {

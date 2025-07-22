@@ -2,16 +2,16 @@ package com.glanci.core.config
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.glanci.auth.error.AuthError
+import com.glanci.auth.error.AuthException
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 
 fun Application.configureSecurity() {
-    val secret = System.getenv("JWT_SECRET") ?: throw AuthError.InvalidToken()
-    val issuer = System.getenv("JWT_ISSUER") ?: throw AuthError.InvalidToken()
-    val audience = System.getenv("JWT_AUDIENCE") ?: throw AuthError.InvalidToken()
-    val myRealm = System.getenv("JWT_REALM") ?: throw AuthError.InvalidToken()
+    val secret = System.getenv("JWT_SECRET") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
+    val issuer = System.getenv("JWT_ISSUER") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
+    val audience = System.getenv("JWT_AUDIENCE") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
+    val myRealm = System.getenv("JWT_REALM") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
 
     install(Authentication) {
         jwt("auth-jwt") {
@@ -33,7 +33,7 @@ fun Application.configureSecurity() {
                 }
             }
             challenge { _, _ ->
-                throw AuthError.InvalidToken()
+                throw AuthException.InvalidToken()
             }
         }
     }

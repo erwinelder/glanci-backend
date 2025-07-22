@@ -3,7 +3,7 @@ package com.glanci.navigation.domain.service
 import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.core.data.repository.UpdateTimeRepository
 import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeError
+import com.glanci.core.error.UpdateTimeException
 import com.glanci.navigation.data.repository.NavigationButtonRepository
 import com.glanci.navigation.error.NavigationButtonError
 import com.glanci.navigation.mapper.toDataModel
@@ -25,7 +25,7 @@ class NavigationButtonServiceImpl(
         return runCatching {
             updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
         }
-            .onFailure { throw UpdateTimeError.UpdateTimeNotFetched() }
+            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
             .getOrNull()
     }
 
@@ -33,7 +33,7 @@ class NavigationButtonServiceImpl(
         runCatching {
             updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
         }
-            .onFailure { throw UpdateTimeError.UpdateTimeNotSaved() }
+            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
     }
 
     override suspend fun saveNavigationButtons(

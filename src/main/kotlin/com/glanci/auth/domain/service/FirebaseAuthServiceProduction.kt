@@ -3,6 +3,9 @@ package com.glanci.auth.domain.service
 import com.glanci.auth.domain.model.firebase.*
 import com.glanci.auth.error.AuthError
 import com.glanci.auth.error.firebase.FirebaseErrorResponse
+import com.glanci.request.domain.ResultData
+import com.glanci.request.domain.SimpleResult
+import com.glanci.request.domain.getDataOrReturn
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -48,20 +51,21 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
     }
 
 
-    private suspend fun lookup(idToken: String): FirebaseUser {
-        return try {
+    private suspend fun lookup(idToken: String): ResultData<FirebaseUser, AuthError> {
+        val user = runCatching {
             httpClient.post("$firebaseAuthApiUrl:lookup?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = hashMapOf(
                     "idToken" to idToken
                 ))
             }.getFirebaseUser(idToken = idToken)
-        } catch (_: Exception) {
-            throw AuthError.ErrorDuringFetchingUserDataFromAuthProvider()
         }
+            .getOrElse { return ResultData.Error(AuthError.ErrorDuringFetchingUserDataFromAuthProvider) }
+
+        return ResultData.Success(data = user)
     }
 
-    private suspend fun applyOobCode(oobCode: String): JsonObject {
+    private suspend fun applyOobCode(oobCode: String): ResultData<JsonObject, AuthError> {
         val response = httpClient.post("$firebaseAuthApiUrl:update?key=$firebaseApiKey") {
             contentType(ContentType.Application.Json)
             setBody(body = FirebaseApplyOobCodeRequest(oobCode = oobCode))
@@ -70,195 +74,209 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
         val responseJson = response.getJsonObject()
         if (responseJson.containsKey("error")) {
             val error = Json.decodeFromJsonElement<FirebaseErrorResponse>(responseJson)
-            when (error.error.message) {
-                "EXPIRED_OOB_CODE" -> throw AuthError.OobCodeExpired()
-                "INVALID_OOB_CODE" -> throw AuthError.InvalidOobCode()
-                else -> throw Exception()
+            return when (error.error.message) {
+                "EXPIRED_OOB_CODE" -> ResultData.Error(AuthError.OobCodeExpired)
+                "INVALID_OOB_CODE" -> ResultData.Error(AuthError.InvalidOobCode)
+                else -> ResultData.Error(AuthError.ErrorDuringVerifyingOobCodeByAuthProvider)
             }
         }
         if (response.status != HttpStatusCode.OK) {
-            throw Exception()
+            return ResultData.Error(AuthError.ErrorDuringVerifyingOobCodeByAuthProvider)
         }
 
-        return responseJson
+        return ResultData.Success(data = responseJson)
     }
 
 
-    override suspend fun signIn(email: String, password: String): FirebaseUser {
-        val authResponse = try {
+    override suspend fun signIn(email: String, password: String): ResultData<FirebaseUser, AuthError> {
+        val authResponse = runCatching {
             httpClient.post("$firebaseAuthApiUrl:signInWithPassword?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseCredentialsRequest(email = email, password = password))
             }.getFirebaseAuthResponse()
-        } catch (_: Exception) {
-            throw AuthError.InvalidCredentials()
+        }.getOrElse {
+            return ResultData.Error(AuthError.InvalidCredentials)
         }
 
-        val user = lookup(idToken = authResponse.idToken)
+        val user = lookup(idToken = authResponse.idToken).getDataOrReturn { return ResultData.Error(it) }
 
         if (!user.emailVerified) {
             sendEmailVerification(idToken = user.idToken)
-            throw AuthError.EmailNotVerified()
+            return ResultData.Error(AuthError.EmailNotVerified)
         }
 
-        return user
+        return ResultData.Success(data = user)
     }
 
-    override suspend fun signUp(email: String, password: String): FirebaseUser {
-        val response = try {
+    override suspend fun signUp(email: String, password: String): ResultData<FirebaseUser, AuthError> {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:signUp?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseCredentialsRequest(email = email, password = password))
             }
-        } catch (_: Exception) {
-            throw AuthError.SignUpFailed()
+        }.getOrElse {
+            return ResultData.Error(AuthError.SignUpFailed)
         }
 
         val responseJson = Json.parseToJsonElement(string = response.bodyAsText()).jsonObject
         if (responseJson.containsKey("error")) {
             val error = Json.decodeFromJsonElement<FirebaseErrorResponse>(responseJson)
-            when (error.error.message) {
-                "EMAIL_EXISTS" -> throw AuthError.UserAlreadyExists()
-                else -> throw AuthError.SignUpFailed()
+            return when (error.error.message) {
+                "EMAIL_EXISTS" -> ResultData.Error(AuthError.UserAlreadyExists)
+                else -> ResultData.Error(AuthError.SignUpFailed)
             }
         }
 
         val authResponse = response.getFirebaseAuthResponse()
 
-        return FirebaseUser(
+        val user = FirebaseUser(
             idToken = authResponse.idToken,
             uid = authResponse.uid,
             email = authResponse.email,
             emailVerified = false
         )
+
+        return ResultData.Success(data = user)
     }
 
-    override suspend fun sendEmailVerification(idToken: String) {
-        val response = try {
+    override suspend fun sendEmailVerification(idToken: String): SimpleResult<AuthError> {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:sendOobCode?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseVerifyEmailRequest(idToken = idToken))
             }
-        } catch (_: Exception) {
-            throw AuthError.SendingVerificationEmailFailed()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.SendingVerificationEmailFailed)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw AuthError.SendingVerificationEmailFailed()
+            return SimpleResult.Error(AuthError.SendingVerificationEmailFailed)
         }
+
+        return SimpleResult.Success()
     }
 
-    override suspend fun verifyEmail(oobCode: String): String {
-        val responseJson = try {
+    override suspend fun verifyEmail(oobCode: String): ResultData<String, AuthError> {
+        val responseJson = runCatching {
             applyOobCode(oobCode = oobCode)
-        } catch (e: AuthError) {
-            throw e
-        } catch (_: Exception) {
-            throw AuthError.EmailVerificationFailed()
         }
+            .getOrElse { return ResultData.Error(AuthError.EmailVerificationFailed) }
+            .getDataOrReturn { return ResultData.Error(it) }
 
-        return responseJson["email"]?.jsonPrimitive?.content
-            ?: throw AuthError.EmailVerificationFailed()
+        val email = responseJson["email"]?.jsonPrimitive?.content
+            ?: return ResultData.Error(AuthError.EmailVerificationFailed)
+
+        return ResultData.Success(data = email)
     }
 
 
-    override suspend fun requestEmailUpdate(idToken: String, newEmail: String) {
-        val response = try {
+    override suspend fun requestEmailUpdate(idToken: String, newEmail: String): SimpleResult<AuthError> {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:sendOobCode?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseVerifyAndChangeEmailRequest(idToken = idToken, newEmail = newEmail))
             }
-        } catch (_: Exception) {
-            throw AuthError.EmailUpdateRequestFailed()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.EmailUpdateRequestFailed)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw AuthError.EmailUpdateRequestFailed()
+            return SimpleResult.Error(AuthError.EmailUpdateRequestFailed)
         }
+
+        return SimpleResult.Success()
     }
 
-    override suspend fun verifyEmailUpdate(oobCode: String): String {
-        val responseJson = try {
+    override suspend fun verifyEmailUpdate(oobCode: String): ResultData<String, AuthError> {
+        val responseJson = runCatching {
             applyOobCode(oobCode = oobCode)
-        } catch (e: AuthError) {
-            throw e
-        } catch (_: Exception) {
-            throw AuthError.EmailUpdateFailed()
         }
+            .getOrElse { return ResultData.Error(AuthError.EmailUpdateFailed) }
+            .getDataOrReturn { return ResultData.Error(it) }
 
-        return responseJson["email"]?.jsonPrimitive?.content
-            ?: throw AuthError.EmailUpdateFailed()
+        val email = responseJson["email"]?.jsonPrimitive?.content
+            ?: return ResultData.Error(AuthError.EmailUpdateFailed)
+
+        return ResultData.Success(data = email)
     }
 
 
-    override suspend fun updatePassword(idToken: String, newPassword: String) {
-        val response = try {
+    override suspend fun updatePassword(idToken: String, newPassword: String): SimpleResult<AuthError> {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:update?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseUpdatePasswordRequest(idToken = idToken, password = newPassword))
             }
-        } catch (_: Exception) {
-            throw AuthError.PasswordUpdateFailed()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.PasswordUpdateFailed)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw AuthError.PasswordUpdateFailed()
+            return SimpleResult.Error(AuthError.PasswordUpdateFailed)
         }
+
+        return SimpleResult.Success()
     }
 
-    override suspend fun requestPasswordReset(email: String) {
-        val response = try {
+    override suspend fun requestPasswordReset(email: String): SimpleResult<AuthError> {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:sendOobCode?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseRequestPasswordResetRequest(email = email))
             }
-        } catch (_: Exception) {
-            throw AuthError.PasswordResetRequestFailed()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.PasswordResetRequestFailed)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw AuthError.PasswordResetRequestFailed()
+            return SimpleResult.Error(AuthError.PasswordResetRequestFailed)
         }
+
+        return SimpleResult.Success()
     }
 
-    override suspend fun verifyPasswordReset(oobCode: String, newPassword: String) {
-        val response = try {
+    override suspend fun verifyPasswordReset(oobCode: String, newPassword: String): SimpleResult<AuthError> {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:resetPassword?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebasePasswordResetRequest(oobCode = oobCode, newPassword = newPassword))
             }
-        } catch (_: Exception) {
-            throw AuthError.PasswordResetFailed()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.PasswordResetFailed)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw AuthError.PasswordResetFailed()
+            return SimpleResult.Error(AuthError.PasswordResetFailed)
         }
+
+        return SimpleResult.Success()
     }
 
 
-    override suspend fun deleteUser(email: String, password: String) {
-        val authResponse = try {
+    override suspend fun deleteUser(email: String, password: String): SimpleResult<AuthError> {
+        val authResponse = runCatching {
             httpClient.post("$firebaseAuthApiUrl:signInWithPassword?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = FirebaseCredentialsRequest(email = email, password = password))
             }.getFirebaseAuthResponse()
-        } catch (_: Exception) {
-            throw AuthError.InvalidCredentials()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.InvalidCredentials)
         }
 
-        val response = try {
+        val response = runCatching {
             httpClient.post("$firebaseAuthApiUrl:delete?key=$firebaseApiKey") {
                 contentType(ContentType.Application.Json)
                 setBody(body = hashMapOf("idToken" to authResponse.idToken))
             }
-        } catch (_: Exception) {
-            throw AuthError.UserDeletionFailed()
+        }.getOrElse {
+            return SimpleResult.Error(AuthError.UserDeletionFailed)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw AuthError.UserDeletionFailed()
+            return SimpleResult.Error(AuthError.UserDeletionFailed)
         }
+
+        return SimpleResult.Success()
     }
 
 }

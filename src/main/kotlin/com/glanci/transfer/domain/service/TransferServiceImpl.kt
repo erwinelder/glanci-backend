@@ -3,7 +3,7 @@ package com.glanci.transfer.domain.service
 import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.core.data.repository.UpdateTimeRepository
 import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeError
+import com.glanci.core.error.UpdateTimeException
 import com.glanci.transfer.data.repository.TransferRepository
 import com.glanci.transfer.error.TransferError
 import com.glanci.transfer.mapper.toDataModel
@@ -26,7 +26,7 @@ class TransferServiceImpl(
         return runCatching {
             updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
         }
-            .onFailure { throw UpdateTimeError.UpdateTimeNotFetched() }
+            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
             .getOrNull()
     }
 
@@ -34,7 +34,7 @@ class TransferServiceImpl(
         runCatching {
             updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
         }
-            .onFailure { throw UpdateTimeError.UpdateTimeNotSaved() }
+            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
     }
 
     override suspend fun saveTransfers(

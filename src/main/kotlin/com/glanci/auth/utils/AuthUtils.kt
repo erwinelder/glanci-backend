@@ -7,20 +7,19 @@ import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserAuthData
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.auth.error.AuthError
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.routing.*
+import com.glanci.auth.error.AuthException
+import com.glanci.request.domain.ResultData
 import java.util.*
 
 
-fun createJwt(user: User): String {
-    val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
-        ?: throw AuthError.ErrorDuringExtractingJwtSecret()
-    val issuer = System.getenv("JWT_ISSUER") ?: throw AuthError.ErrorDuringExtractingJwtSecret()
-    val audience = System.getenv("JWT_AUDIENCE") ?: throw AuthError.ErrorDuringExtractingJwtSecret()
+fun createJwtOrNull(user: User): String? {
+    val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() } ?: return null
+    val issuer = System.getenv("JWT_ISSUER")?.takeIf { it.isNotBlank() } ?: return null
+    val audience = System.getenv("JWT_AUDIENCE")?.takeIf { it.isNotBlank() } ?: return null
+
     val algorithm = Algorithm.HMAC256(secret)
 
-    return try {
+    return runCatching {
         JWT.create()
             .withAudience(audience)
             .withIssuer(issuer)
@@ -28,16 +27,15 @@ fun createJwt(user: User): String {
             .withClaim("role", user.role.name)
             .withExpiresAt(Date(System.currentTimeMillis() + 12L * 30 * 24 * 60 * 60 * 1000))
             .sign(algorithm)
-    } catch (_: Exception) {
-        throw AuthError.ErrorDuringCreatingJwtToken()
-    }
+    }.getOrNull()
 }
 
+@Deprecated("Use verifyAndDecodeJwtResult instead")
 fun verifyAndDecodeJwt(token: String): DecodedJWT {
     val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
-        ?: throw AuthError.ErrorDuringExtractingJwtSecret()
-    val issuer = System.getenv("JWT_ISSUER") ?: throw AuthError.ErrorDuringExtractingJwtSecret()
-    val audience = System.getenv("JWT_AUDIENCE") ?: throw AuthError.ErrorDuringExtractingJwtSecret()
+        ?: throw AuthException.ErrorDuringExtractingJwtSecret()
+    val issuer = System.getenv("JWT_ISSUER") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
+    val audience = System.getenv("JWT_AUDIENCE") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
     val algorithm = Algorithm.HMAC256(secret)
 
     val verifier = JWT.require(algorithm)
@@ -49,78 +47,78 @@ fun verifyAndDecodeJwt(token: String): DecodedJWT {
             .build()
 
     return runCatching { verifier.verify(token) }
-        .getOrElse { throw AuthError.ErrorDuringExtractingJwtSecret() }
+        .getOrElse { throw AuthException.ErrorDuringExtractingJwtSecret() }
 }
 
+fun verifyAndDecodeJwtResult(token: String): ResultData<DecodedJWT, AuthError> {
+    val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
+    val issuer = System.getenv("JWT_ISSUER")?.takeIf { it.isNotBlank() }
+    val audience = System.getenv("JWT_AUDIENCE")?.takeIf { it.isNotBlank() }
 
-fun RoutingContext.verifyJwtToken(): JWTPrincipal {
-    return call.principal<JWTPrincipal>() ?: throw AuthError.InvalidToken()
+    if (secret == null || issuer == null || audience == null) {
+        return ResultData.Error(AuthError.ErrorDuringExtractingJwtSecret)
+    }
+
+    val algorithm = Algorithm.HMAC256(secret)
+
+    val jwt = runCatching {
+        JWT.require(algorithm)
+            .withAudience(audience)
+            .withIssuer(issuer)
+            .withClaimPresence("id")
+            .withClaimPresence("role")
+            .acceptLeeway(0)
+            .build()
+            .verify(token)
+    }
+        .getOrElse { return ResultData.Error(AuthError.InvalidToken) }
+
+    return ResultData.Success(data = jwt)
 }
 
-fun JWTPrincipal.getClaimFromPrincipal(claim: String): String {
-    return payload.getClaim(claim).asString()
-}
 
 fun DecodedJWT.getClaimFromJwt(claim: String): String {
     return getClaim(claim).asString()
-}
-
-fun JWTPrincipal.getIdFromPrincipal(): Int {
-    return getClaimFromPrincipal("id").toInt()
 }
 
 fun DecodedJWT.getIdFromJwt(): Int {
     return getClaimFromJwt("id").toInt()
 }
 
-fun JWTPrincipal.getRoleFromPrincipal(): UserRole {
-    return enumValueOf<UserRole>(name = getClaimFromPrincipal("role"))
-}
-
 fun DecodedJWT.getRoleFromJwt(): UserRole {
     return enumValueOf<UserRole>(name = getClaimFromJwt("role"))
 }
 
-fun JWTPrincipal.getTokenExpirationTimeInMinutesFromPrincipal(): Long? {
-    return expiresAt?.time?.minus(System.currentTimeMillis())?.div(60000)
-}
 
-fun JWTPrincipal.getTokenExpirationTimeInMinutesOrZeroFromPrincipal(): Long {
-    return expiresAt?.time?.minus(System.currentTimeMillis())?.div(60000) ?: 0
-}
-
-
-fun RoutingContext.authorizeAtLeastAsUser(): UserAuthData {
-    val principal = verifyJwtToken()
-    val role = principal.getRoleFromPrincipal()
-
-    if (role !in listOf(UserRole.User, UserRole.Admin)) {
-        throw AuthError.InsufficientPermissions()
-    }
-
-    return UserAuthData(id = principal.getIdFromPrincipal(), role = role)
-}
-
+@Deprecated("Use authorizeAtLeastAsUserResult instead")
 fun authorizeAtLeastAsUser(token: String): UserAuthData {
     val jwt = verifyAndDecodeJwt(token = token)
 
     return UserAuthData(id = jwt.getIdFromJwt(), role = jwt.getRoleFromJwt())
 }
 
-fun RoutingContext.authorizeAsAdmin(): UserAuthData {
-    val principal = verifyJwtToken()
-    val role = principal.getRoleFromPrincipal()
-
-    if (role != UserRole.Admin) throw AuthError.InsufficientPermissions()
-
-    return UserAuthData(id = principal.getIdFromPrincipal(), role = role)
+fun authorizeAtLeastAsUserResult(token: String): ResultData<UserAuthData, AuthError> {
+    return verifyAndDecodeJwtResult(token = token).mapData {
+        UserAuthData(id = it.getIdFromJwt(), role = it.getRoleFromJwt())
+    }
 }
 
-fun authorizeAsAdmin(token: String): UserAuthData {
-    val jwt = verifyAndDecodeJwt(token = token)
-    val role = jwt.getRoleFromJwt()
+fun authorizeAsAdmin(token: String): ResultData<UserAuthData, AuthError> {
+    val jwtResult = verifyAndDecodeJwtResult(token = token)
 
-    if (role != UserRole.Admin) throw AuthError.InsufficientPermissions()
+    return when (jwtResult) {
+        is ResultData.Success -> {
+            val jwt = jwtResult.data
 
-    return UserAuthData(id = jwt.getIdFromJwt(), role = UserRole.Admin)
+            val role = jwt.getRoleFromJwt()
+            if (role != UserRole.Admin) {
+                ResultData.Error(AuthError.InsufficientPermissions)
+            } else {
+                ResultData.Success(data = UserAuthData(id = jwt.getIdFromJwt(), role = UserRole.Admin))
+            }
+        }
+        is ResultData.Error -> {
+            ResultData.Error(jwtResult.error)
+        }
+    }
 }

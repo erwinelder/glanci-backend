@@ -10,7 +10,7 @@ import com.glanci.category.shared.dto.CategoryQueryDto
 import com.glanci.category.shared.service.CategoryService
 import com.glanci.core.data.repository.UpdateTimeRepository
 import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeError
+import com.glanci.core.error.UpdateTimeException
 
 class CategoryServiceImpl(
     private val categoryRepository: CategoryRepository,
@@ -26,7 +26,7 @@ class CategoryServiceImpl(
         return runCatching {
             updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
         }
-            .onFailure { throw UpdateTimeError.UpdateTimeNotFetched() }
+            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
             .getOrNull()
     }
 
@@ -34,7 +34,7 @@ class CategoryServiceImpl(
         runCatching {
             updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
         }
-            .onFailure { throw UpdateTimeError.UpdateTimeNotSaved() }
+            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
     }
 
     override suspend fun saveCategories(categories: List<CategoryCommandDto>, timestamp: Long, token: String) {

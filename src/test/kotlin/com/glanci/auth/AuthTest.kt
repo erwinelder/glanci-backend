@@ -1,35 +1,61 @@
 package com.glanci.auth
 
-import com.glanci.auth.domain.dto.UserCredentialsDto
-import com.glanci.auth.domain.dto.UserWithTokenDto
+import com.glanci.auth.error.AuthError
+import com.glanci.auth.shared.service.AuthService
 import com.glanci.mainModule
-import com.glanci.utils.getClient
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import com.glanci.utils.configureRcp
+import com.glanci.utils.getKrpcClient
 import io.ktor.server.testing.*
-import kotlinx.serialization.json.Json
+import kotlinx.rpc.withService
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class AuthTest {
 
     @Test
     fun `test signIn`() = testApplication {
         application { mainModule() }
-        client = getClient()
+        val client = getKrpcClient()
+        val rcpClient = client.configureRcp(path = "auth")
+        val service = rcpClient.withService<AuthService>()
 
-        val response = client.post("/auth/sign-in") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                UserCredentialsDto(email = "base_user@domain.com", password = "password")
-            )
-        }
-        val userWithToken = Json.decodeFromString<UserWithTokenDto>(string = response.bodyAsText())
+        val userWithToken = service.signIn(email = "base_user@domain.com", password = "password").getDataOrNull()
 
-        assertEquals(userWithToken.email, "base_user@domain.com")
+        assertNotNull(userWithToken)
+        assertEquals("base_user@domain.com", userWithToken.email)
+
+        client.close()
+    }
+
+    @Test
+    fun `test signUp`() = testApplication {
+        application { mainModule() }
+        val client = getKrpcClient()
+        val rcpClient = client.configureRcp(path = "auth")
+        val service = rcpClient.withService<AuthService>()
+
+        val signInError = service.signIn(email = "new_user@domain.com", password = "password").getErrorOrNull()
+
+        assertEquals(AuthError.UserNotFound, signInError)
+
+        val signUpError = service.signUp(
+            name = "New user",
+            email = "new_user@domain.com",
+            password = "Password0_",
+            langCode = "en"
+        ).getErrorOrNull()
+
+        assertNull(signUpError)
+
+        val userWithToken = service.signIn(email = "new_user@domain.com", password = "password").getDataOrNull()
+
+        assertNotNull(userWithToken)
+        assertEquals(4, userWithToken.id)
+        assertEquals("new_user@domain.com", userWithToken.email)
+
+        client.close()
     }
 
 }

@@ -1,13 +1,12 @@
 package com.glanci.core.config
 
 import com.glanci.account.error.AccountError
-import com.glanci.auth.error.AuthError
-import com.glanci.auth.error.UserError
+import com.glanci.auth.error.AuthException
 import com.glanci.budget.error.BudgetError
 import com.glanci.budget.error.BudgetOnWidgetError
 import com.glanci.category.error.CategoryError
 import com.glanci.categoryCollection.error.CategoryCollectionError
-import com.glanci.core.error.UpdateTimeError
+import com.glanci.core.error.UpdateTimeException
 import com.glanci.navigation.error.NavigationButtonError
 import com.glanci.personalization.error.WidgetError
 import com.glanci.record.error.RecordError
@@ -26,21 +25,14 @@ fun Application.configureStatusPages(
             call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
         }
 
-        exception<AuthError> { call, cause ->
+        exception<AuthException> { call, cause ->
             call.respondText(
                 text = "Auth error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }
 
-        exception<UserError> { call, cause ->
-            call.respondText(
-                text = "User error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<UpdateTimeError> { call, cause ->
+        exception<UpdateTimeException> { call, cause ->
             call.respondText(
                 text = "UpdateTime error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
