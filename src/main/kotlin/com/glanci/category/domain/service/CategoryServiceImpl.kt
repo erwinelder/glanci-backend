@@ -1,67 +1,62 @@
 package com.glanci.category.domain.service
 
-import com.glanci.auth.utils.authorizeAtLeastAsUser
+import com.glanci.auth.utils.authorizeAtLeastAsUserResult
 import com.glanci.category.data.repository.CategoryRepository
-import com.glanci.category.error.CategoryError
 import com.glanci.category.mapper.toDataModel
 import com.glanci.category.mapper.toQueryDto
 import com.glanci.category.shared.dto.CategoryCommandDto
 import com.glanci.category.shared.dto.CategoryQueryDto
 import com.glanci.category.shared.service.CategoryService
-import com.glanci.core.data.repository.UpdateTimeRepository
-import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeException
+import com.glanci.core.domain.service.UpdateTimeService
+import com.glanci.request.domain.ResultData
+import com.glanci.request.domain.SimpleResult
+import com.glanci.request.domain.error.CategoryError
+import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.getDataOrReturn
+import com.glanci.request.domain.returnIfError
 
 class CategoryServiceImpl(
     private val categoryRepository: CategoryRepository,
-    private val updateTimeRepository: UpdateTimeRepository
+    private val updateTimeService: UpdateTimeService
 ): CategoryService {
 
-    private val tableName = TableName.Category
-
-
-    override suspend fun getUpdateTime(token: String): Long? {
-        val user = authorizeAtLeastAsUser(token = token)
-
-        return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
-            .getOrNull()
+    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        return updateTimeService.getUpdateTime(userId = user.id)
     }
 
-    private fun saveUpdateTime(timestamp: Long, userId: Int) {
-        runCatching {
-            updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
-    }
-
-    override suspend fun saveCategories(categories: List<CategoryCommandDto>, timestamp: Long, token: String) {
-        val user = authorizeAtLeastAsUser(token = token)
+    override suspend fun saveCategories(
+        categories: List<CategoryCommandDto>,
+        timestamp: Long,
+        token: String
+    ): SimpleResult<RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
             categoryRepository.upsertCategories(
                 categories = categories.map { it.toDataModel(userId = user.id) }
             )
+        }.onFailure {
+            return SimpleResult.Error(CategoryError.CategoriesNotSaved)
         }
-            .onFailure { throw CategoryError.CategoriesNotSaved() }
 
-        saveUpdateTime(timestamp = timestamp, userId = user.id)
+        return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
     }
 
     override suspend fun getCategoriesAfterTimestamp(
         timestamp: Long,
         token: String
-    ): List<CategoryQueryDto>? {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): ResultData<List<CategoryQueryDto>, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
-        return runCatching {
+        val categories = runCatching {
             categoryRepository.getCategoriesAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
+        }.getOrElse {
+            return ResultData.Error(CategoryError.CategoriesNotFetched)
         }
-            .onFailure { throw CategoryError.CategoriesNotFetched() }
-            .getOrNull()
+
+        return ResultData.Success(data = categories)
     }
 
     override suspend fun saveCategoriesAndGetAfterTimestamp(
@@ -69,8 +64,9 @@ class CategoryServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): List<CategoryQueryDto>? {
+    ): ResultData<List<CategoryQueryDto>, RootError> {
         saveCategories(categories = categories, timestamp = timestamp, token = token)
+            .returnIfError { return ResultData.Error(it) }
         return getCategoriesAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

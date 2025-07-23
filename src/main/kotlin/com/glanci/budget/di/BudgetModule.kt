@@ -8,6 +8,8 @@ import com.glanci.budget.domain.service.BudgetOnWidgetServiceImpl
 import com.glanci.budget.domain.service.BudgetServiceImpl
 import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.budget.shared.service.BudgetService
+import com.glanci.core.domain.model.app.TableName
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 
 val budgetModule = module {
@@ -27,14 +29,18 @@ val budgetModule = module {
     single<BudgetService> {
         BudgetServiceImpl(
             budgetRepository = get(),
-            updateTimeRepository = get()
+            updateTimeService = get {
+                parametersOf(TableName.Budget)
+            }
         )
     }
 
     single<BudgetOnWidgetService> {
         BudgetOnWidgetServiceImpl(
             budgetOnWidgetRepository = get(),
-            updateTimeRepository = get()
+            updateTimeService = get {
+                parametersOf(TableName.BudgetOnWidget)
+            }
         )
     }
 

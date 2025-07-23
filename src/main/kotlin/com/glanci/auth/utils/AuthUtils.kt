@@ -6,9 +6,8 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserAuthData
 import com.glanci.auth.domain.model.UserRole
-import com.glanci.auth.error.AuthError
-import com.glanci.auth.error.AuthException
 import com.glanci.request.domain.ResultData
+import com.glanci.request.domain.error.AuthError
 import java.util.*
 
 
@@ -28,26 +27,6 @@ fun createJwtOrNull(user: User): String? {
             .withExpiresAt(Date(System.currentTimeMillis() + 12L * 30 * 24 * 60 * 60 * 1000))
             .sign(algorithm)
     }.getOrNull()
-}
-
-@Deprecated("Use verifyAndDecodeJwtResult instead")
-fun verifyAndDecodeJwt(token: String): DecodedJWT {
-    val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
-        ?: throw AuthException.ErrorDuringExtractingJwtSecret()
-    val issuer = System.getenv("JWT_ISSUER") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
-    val audience = System.getenv("JWT_AUDIENCE") ?: throw AuthException.ErrorDuringExtractingJwtSecret()
-    val algorithm = Algorithm.HMAC256(secret)
-
-    val verifier = JWT.require(algorithm)
-            .withAudience(audience)
-            .withIssuer(issuer)
-            .withClaimPresence("id")
-            .withClaimPresence("role")
-            .acceptLeeway(0)
-            .build()
-
-    return runCatching { verifier.verify(token) }
-        .getOrElse { throw AuthException.ErrorDuringExtractingJwtSecret() }
 }
 
 fun verifyAndDecodeJwtResult(token: String): ResultData<DecodedJWT, AuthError> {
@@ -70,8 +49,9 @@ fun verifyAndDecodeJwtResult(token: String): ResultData<DecodedJWT, AuthError> {
             .acceptLeeway(0)
             .build()
             .verify(token)
+    }.getOrElse {
+        return ResultData.Error(AuthError.InvalidToken)
     }
-        .getOrElse { return ResultData.Error(AuthError.InvalidToken) }
 
     return ResultData.Success(data = jwt)
 }
@@ -89,13 +69,6 @@ fun DecodedJWT.getRoleFromJwt(): UserRole {
     return enumValueOf<UserRole>(name = getClaimFromJwt("role"))
 }
 
-
-@Deprecated("Use authorizeAtLeastAsUserResult instead")
-fun authorizeAtLeastAsUser(token: String): UserAuthData {
-    val jwt = verifyAndDecodeJwt(token = token)
-
-    return UserAuthData(id = jwt.getIdFromJwt(), role = jwt.getRoleFromJwt())
-}
 
 fun authorizeAtLeastAsUserResult(token: String): ResultData<UserAuthData, AuthError> {
     return verifyAndDecodeJwtResult(token = token).mapData {

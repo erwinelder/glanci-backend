@@ -3,6 +3,8 @@ package com.glanci.core.di
 import com.glanci.core.data.db.GlanciDatabaseProvider
 import com.glanci.core.data.repository.UpdateTimeRepository
 import com.glanci.core.data.repository.UpdateTimeRepositoryImpl
+import com.glanci.core.domain.service.UpdateTimeService
+import com.glanci.core.domain.service.UpdateTimeServiceImpl
 import org.koin.dsl.module
 
 val coreModule = module {
@@ -13,10 +15,19 @@ val coreModule = module {
         GlanciDatabaseProvider()
     }
 
-    /* ------------ Repository ------------ */
+    /* ------------ Repositories ------------ */
 
     single<UpdateTimeRepository> {
         UpdateTimeRepositoryImpl(databaseProvider = get())
+    }
+
+    /* ------------ Services ------------ */
+
+    single<UpdateTimeService> { params ->
+        UpdateTimeServiceImpl(
+            updateTimeRepository = get(),
+            tableName = params.get()
+        )
     }
 
 }

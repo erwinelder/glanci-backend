@@ -1,64 +1,59 @@
 package com.glanci.account.domain.service
 
 import com.glanci.account.data.repository.AccountRepository
-import com.glanci.account.error.AccountError
+import com.glanci.request.domain.error.AccountError
 import com.glanci.account.mapper.toDataModel
 import com.glanci.account.mapper.toQueryDto
 import com.glanci.account.shared.dto.AccountCommandDto
 import com.glanci.account.shared.dto.AccountQueryDto
 import com.glanci.account.shared.service.AccountService
-import com.glanci.auth.utils.authorizeAtLeastAsUser
-import com.glanci.core.data.repository.UpdateTimeRepository
-import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeException
+import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.core.domain.service.UpdateTimeService
+import com.glanci.request.domain.*
+import com.glanci.request.domain.error.RootError
 
 class AccountServiceImpl(
     private val accountRepository: AccountRepository,
-    private val updateTimeRepository: UpdateTimeRepository
+    private val updateTimeService: UpdateTimeService
 ) : AccountService {
 
-    private val tableName = TableName.Account
-
-
-    override suspend fun getUpdateTime(token: String): Long? {
-        val user = authorizeAtLeastAsUser(token = token)
-
-        return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
-            .getOrNull()
+    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        return updateTimeService.getUpdateTime(userId = user.id)
     }
 
-    private fun saveUpdateTime(timestamp: Long, userId: Int) {
-        runCatching {
-            updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
-    }
-
-    override suspend fun saveAccounts(accounts: List<AccountCommandDto>, timestamp: Long, token: String) {
-        val user = authorizeAtLeastAsUser(token = token)
+    override suspend fun saveAccounts(
+        accounts: List<AccountCommandDto>,
+        timestamp: Long,
+        token: String
+    ): SimpleResult<RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
             accountRepository.upsertAccounts(
                 accounts = accounts.map { it.toDataModel(userId = user.id) }
             )
+        }.onFailure {
+            return SimpleResult.Error(AccountError.AccountsNotSaved)
         }
-            .onFailure { throw AccountError.AccountsNotSaved() }
 
-        saveUpdateTime(timestamp = timestamp, userId = user.id)
+        return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
     }
 
-    override suspend fun getAccountsAfterTimestamp(timestamp: Long, token: String): List<AccountQueryDto>? {
-        val user = authorizeAtLeastAsUser(token = token)
+    override suspend fun getAccountsAfterTimestamp(
+        timestamp: Long,
+        token: String
+    ): ResultData<List<AccountQueryDto>, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
-        return runCatching {
+        val accounts = runCatching {
             accountRepository.getAccountsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
+        }.getOrElse {
+            return ResultData.Error(AccountError.AccountsNotFetched)
         }
-            .onFailure { throw AccountError.AccountsNotFetched() }
-            .getOrNull()
+
+        return ResultData.Success(data = accounts)
     }
 
     override suspend fun saveAccountsAndGetAfterTimestamp(
@@ -66,8 +61,9 @@ class AccountServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): List<AccountQueryDto>? {
+    ): ResultData<List<AccountQueryDto>, RootError> {
         saveAccounts(accounts = accounts, timestamp = timestamp, token = token)
+            .returnIfError { return ResultData.Error(it) }
         return getAccountsAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

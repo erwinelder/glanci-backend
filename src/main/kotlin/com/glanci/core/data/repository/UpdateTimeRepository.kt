@@ -1,6 +1,6 @@
 package com.glanci.core.data.repository
 
-import com.glanci.core.domain.dto.TableName
+import com.glanci.core.domain.model.app.TableName
 
 interface UpdateTimeRepository {
 

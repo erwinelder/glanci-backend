@@ -1,70 +1,61 @@
 package com.glanci.budget.domain.service
 
-import com.glanci.auth.utils.authorizeAtLeastAsUser
+import com.glanci.auth.utils.authorizeAtLeastAsUserResult
 import com.glanci.budget.data.repository.BudgetOnWidgetRepository
-import com.glanci.budget.error.BudgetOnWidgetError
 import com.glanci.budget.mapper.toDataModel
 import com.glanci.budget.mapper.toDto
 import com.glanci.budget.shared.dto.BudgetOnWidgetDto
 import com.glanci.budget.shared.service.BudgetOnWidgetService
-import com.glanci.core.data.repository.UpdateTimeRepository
-import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeException
+import com.glanci.core.domain.service.UpdateTimeService
+import com.glanci.request.domain.ResultData
+import com.glanci.request.domain.SimpleResult
+import com.glanci.request.domain.error.BudgetOnWidgetError
+import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.getDataOrReturn
+import com.glanci.request.domain.returnIfError
 
 class BudgetOnWidgetServiceImpl(
     private val budgetOnWidgetRepository: BudgetOnWidgetRepository,
-    private val updateTimeRepository: UpdateTimeRepository
+    private val updateTimeService: UpdateTimeService
 ) : BudgetOnWidgetService {
 
-    private val tableName = TableName.BudgetOnWidget
-
-
-    override suspend fun getUpdateTime(token: String): Long? {
-        val user = authorizeAtLeastAsUser(token = token)
-
-        return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
-            .getOrNull()
-    }
-
-    private fun saveUpdateTime(timestamp: Long, userId: Int) {
-        runCatching {
-            updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
+    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        return updateTimeService.getUpdateTime(userId = user.id)
     }
 
     override suspend fun saveBudgetsOnWidget(
         budgets: List<BudgetOnWidgetDto>,
         timestamp: Long,
         token: String
-    ) {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): SimpleResult<RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
             budgetOnWidgetRepository.upsertBudgetsOnWidget(
                 budgets = budgets.map { it.toDataModel(userId = user.id) }
             )
+        }.onFailure {
+            return SimpleResult.Error(BudgetOnWidgetError.BudgetsOnWidgetNotSaved)
         }
-            .onFailure { throw BudgetOnWidgetError.BudgetsOnWidgetNotSaved() }
 
-        saveUpdateTime(timestamp = timestamp, userId = user.id)
+        return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
     }
 
     override suspend fun getBudgetsOnWidgetAfterTimestamp(
         timestamp: Long,
         token: String
-    ): List<BudgetOnWidgetDto>? {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): ResultData<List<BudgetOnWidgetDto>, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
-        return runCatching {
+        val budgets = runCatching {
             budgetOnWidgetRepository.getBudgetsOnWidgetAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
+        }.getOrElse {
+            return ResultData.Error(BudgetOnWidgetError.BudgetsOnWidgetNotFetched)
         }
-            .onFailure { throw BudgetOnWidgetError.BudgetsOnWidgetNotFetched() }
-            .getOrNull()
+
+        return ResultData.Success(data = budgets)
     }
 
     override suspend fun saveBudgetsOnWidgetAndGetAfterTimestamp(
@@ -72,8 +63,9 @@ class BudgetOnWidgetServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): List<BudgetOnWidgetDto>? {
+    ): ResultData<List<BudgetOnWidgetDto>, RootError> {
         saveBudgetsOnWidget(budgets = budgets, timestamp = timestamp, token = token)
+            .returnIfError { return ResultData.Error(it) }
         return getBudgetsOnWidgetAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

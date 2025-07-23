@@ -20,41 +20,39 @@ import com.glanci.transfer.data.db.TransferTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun configureUserManagementDatabaseTestData(database: Database) {
+fun configureDatabaseTestData(database: Database) {
+    System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean().run { if (this != true) return }
+
     transaction(database) {
-        val recreateDatabaseTestData = System.getenv("RECREATE_DATABASE_TEST_DATA")?.toBoolean()
+        SchemaUtils.create(
+            GlanciUserTable, UpdateTimeTable,
+            AccountTable, CategoryTable,
+            RecordTable, RecordItemTable, TransferTable,
+            CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
+            BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
+            WidgetTable, NavigationButtonTable
+        )
 
-        if (recreateDatabaseTestData == true) {
-            SchemaUtils.create(
-                GlanciUserTable, UpdateTimeTable,
-                AccountTable, CategoryTable,
-                RecordTable, RecordItemTable, TransferTable,
-                CategoryCollectionTable, CategoryCollectionCategoryAssociationTable,
-                BudgetTable, BudgetAccountAssociationTable, BudgetOnWidgetTable,
-                WidgetTable, NavigationButtonTable
-            )
+        GlanciUserTable.deleteAll()
+        exec("TRUNCATE TABLE \"glanci_user\" RESTART IDENTITY CASCADE;")
+        UpdateTimeTable.deleteAll()
 
-            GlanciUserTable.deleteAll()
-            exec("TRUNCATE TABLE \"glanci_user\" RESTART IDENTITY CASCADE;")
-            UpdateTimeTable.deleteAll()
+        AccountTable.deleteAll()
+        CategoryTable.deleteAll()
 
-            AccountTable.deleteAll()
-            CategoryTable.deleteAll()
+        RecordTable.deleteAll()
+        RecordItemTable.deleteAll()
+        TransferTable.deleteAll()
 
-            RecordTable.deleteAll()
-            RecordItemTable.deleteAll()
-            TransferTable.deleteAll()
+        CategoryCollectionTable.deleteAll()
+        CategoryCollectionCategoryAssociationTable.deleteAll()
 
-            CategoryCollectionTable.deleteAll()
-            CategoryCollectionCategoryAssociationTable.deleteAll()
+        BudgetTable.deleteAll()
+        BudgetAccountAssociationTable.deleteAll()
+        BudgetOnWidgetTable.deleteAll()
 
-            BudgetTable.deleteAll()
-            BudgetAccountAssociationTable.deleteAll()
-            BudgetOnWidgetTable.deleteAll()
-
-            WidgetTable.deleteAll()
-            NavigationButtonTable.deleteAll()
-        }
+        WidgetTable.deleteAll()
+        NavigationButtonTable.deleteAll()
     }
     transaction(database) {
         val timestamp = getCurrentTimestamp()
@@ -88,14 +86,6 @@ fun configureUserManagementDatabaseTestData(database: Database) {
                 it[this.timestamp] = timestamp
             }
             exec("SELECT setval('glanci_user_id_seq', (SELECT MAX(id) FROM glanci_user));")
-        }
-
-        if (UpdateTimeTable.selectAll().empty()) {
-            UpdateTimeTable.insert {
-                it[userId] = 1
-                it[name] = "Account"
-                it[this.timestamp] = timestamp
-            }
         }
 
         if (AccountTable.selectAll().empty()) {
@@ -319,12 +309,6 @@ fun configureUserManagementDatabaseTestData(database: Database) {
             BudgetOnWidgetTable.insert {
                 it[userId] = 1
                 it[budgetId] = 1
-                it[this.timestamp] = timestamp
-                it[deleted] = false
-            }
-            BudgetOnWidgetTable.insert {
-                it[userId] = 1
-                it[budgetId] = 2
                 it[this.timestamp] = timestamp
                 it[deleted] = false
             }

@@ -1,70 +1,61 @@
 package com.glanci.navigation.domain.service
 
-import com.glanci.auth.utils.authorizeAtLeastAsUser
-import com.glanci.core.data.repository.UpdateTimeRepository
-import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeException
+import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.navigation.data.repository.NavigationButtonRepository
-import com.glanci.navigation.error.NavigationButtonError
 import com.glanci.navigation.mapper.toDataModel
 import com.glanci.navigation.mapper.toDto
 import com.glanci.navigation.shared.dto.NavigationButtonDto
 import com.glanci.navigation.shared.service.NavigationButtonService
+import com.glanci.request.domain.ResultData
+import com.glanci.request.domain.SimpleResult
+import com.glanci.request.domain.error.NavigationButtonError
+import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.getDataOrReturn
+import com.glanci.request.domain.returnIfError
 
 class NavigationButtonServiceImpl(
     private val navigationButtonRepository: NavigationButtonRepository,
-    private val updateTimeRepository: UpdateTimeRepository
+    private val updateTimeService: UpdateTimeService
 ) : NavigationButtonService {
 
-    private val tableName = TableName.NavigationButton
-
-
-    override suspend fun getUpdateTime(token: String): Long? {
-        val user = authorizeAtLeastAsUser(token = token)
-
-        return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
-            .getOrNull()
-    }
-
-    private fun saveUpdateTime(timestamp: Long, userId: Int) {
-        runCatching {
-            updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
+    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        return updateTimeService.getUpdateTime(userId = user.id)
     }
 
     override suspend fun saveNavigationButtons(
         buttons: List<NavigationButtonDto>,
         timestamp: Long,
         token: String
-    ) {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): SimpleResult<RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
             navigationButtonRepository.upsertNavigationButtons(
                 buttons = buttons.map { it.toDataModel(userId = user.id) }
             )
+        }.onFailure {
+            return SimpleResult.Error(NavigationButtonError.NavigationButtonsNotSaved)
         }
-            .onFailure { throw NavigationButtonError.NavigationButtonsNotSaved() }
 
-        saveUpdateTime(timestamp = timestamp, userId = user.id)
+        return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
     }
 
     override suspend fun getNavigationButtonsAfterTimestamp(
         timestamp: Long,
         token: String
-    ): List<NavigationButtonDto>? {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): ResultData<List<NavigationButtonDto>, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
-        return runCatching {
+        val accounts = runCatching {
             navigationButtonRepository.getNavigationButtonsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
+        }.getOrElse {
+            return ResultData.Error(NavigationButtonError.NavigationButtonsNotFetched)
         }
-            .onFailure { throw NavigationButtonError.NavigationButtonsNotFetched() }
-            .getOrNull()
+
+        return ResultData.Success(data = accounts)
     }
 
     override suspend fun saveNavigationButtonsAndGetAfterTimestamp(
@@ -72,8 +63,9 @@ class NavigationButtonServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): List<NavigationButtonDto>? {
+    ): ResultData<List<NavigationButtonDto>, RootError> {
         saveNavigationButtons(buttons = buttons, timestamp = timestamp, token = token)
+            .returnIfError { return ResultData.Error(it) }
         return getNavigationButtonsAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

@@ -2,7 +2,7 @@ package com.glanci.core.data.repository
 
 import com.glanci.core.data.db.GlanciDatabaseProvider
 import com.glanci.core.data.db.UpdateTimeTable
-import com.glanci.core.domain.dto.TableName
+import com.glanci.core.domain.model.app.TableName
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.selectAll

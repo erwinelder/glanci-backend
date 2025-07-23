@@ -11,7 +11,7 @@ class GlanciDatabaseProvider {
         database = configureDatabase(environment = environment, databaseName = "glanci_db", poolSize = 1)
 
         if (environment == "development") {
-            configureUserManagementDatabaseTestData(database = database)
+            configureDatabaseTestData(database = database)
         }
     }
 

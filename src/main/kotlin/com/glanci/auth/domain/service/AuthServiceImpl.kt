@@ -8,7 +8,7 @@ import com.glanci.auth.domain.model.AppVersionValidator
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserDataValidator
 import com.glanci.auth.domain.model.UserRole
-import com.glanci.auth.error.AuthError
+import com.glanci.request.domain.error.AuthError
 import com.glanci.auth.mapper.toDomainModel
 import com.glanci.auth.mapper.toDto
 import com.glanci.auth.shared.service.AuthService

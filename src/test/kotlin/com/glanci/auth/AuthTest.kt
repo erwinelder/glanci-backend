@@ -1,6 +1,6 @@
 package com.glanci.auth
 
-import com.glanci.auth.error.AuthError
+import com.glanci.request.domain.error.AuthError
 import com.glanci.auth.shared.service.AuthService
 import com.glanci.mainModule
 import com.glanci.utils.configureRcp

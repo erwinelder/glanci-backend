@@ -1,5 +1,7 @@
 package com.glanci.request.domain
 
+import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.success.RootSuccess
 import kotlinx.serialization.Serializable
 
 @Serializable

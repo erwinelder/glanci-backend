@@ -1,4 +1,4 @@
-package com.glanci.core.domain.dto
+package com.glanci.core.domain.model.app
 
 import kotlinx.serialization.Serializable
 

@@ -1,4 +1,4 @@
-package com.glanci.request.domain
+package com.glanci.request.domain.success
 
 typealias RootSuccess = Success
 

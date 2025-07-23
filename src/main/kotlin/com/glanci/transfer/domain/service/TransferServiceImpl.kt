@@ -1,11 +1,14 @@
 package com.glanci.transfer.domain.service
 
-import com.glanci.auth.utils.authorizeAtLeastAsUser
-import com.glanci.core.data.repository.UpdateTimeRepository
-import com.glanci.core.domain.dto.TableName
-import com.glanci.core.error.UpdateTimeException
+import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.core.domain.service.UpdateTimeService
+import com.glanci.request.domain.ResultData
+import com.glanci.request.domain.SimpleResult
+import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.error.TransferError
+import com.glanci.request.domain.getDataOrReturn
+import com.glanci.request.domain.returnIfError
 import com.glanci.transfer.data.repository.TransferRepository
-import com.glanci.transfer.error.TransferError
 import com.glanci.transfer.mapper.toDataModel
 import com.glanci.transfer.mapper.toQueryDto
 import com.glanci.transfer.shared.dto.TransferCommandDto
@@ -14,58 +17,46 @@ import com.glanci.transfer.shared.service.TransferService
 
 class TransferServiceImpl(
     private val transferRepository: TransferRepository,
-    private val updateTimeRepository: UpdateTimeRepository
+    private val updateTimeService: UpdateTimeService
 ) : TransferService {
 
-    private val tableName = TableName.Transfer
-
-
-    override suspend fun getUpdateTime(token: String): Long? {
-        val user = authorizeAtLeastAsUser(token = token)
-
-        return runCatching {
-            updateTimeRepository.getUpdateTime(userId = user.id, tableName = tableName) ?: 0
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotFetched() }
-            .getOrNull()
-    }
-
-    private fun saveUpdateTime(timestamp: Long, userId: Int) {
-        runCatching {
-            updateTimeRepository.saveUpdateTime(userId = userId, tableName = tableName, timestamp = timestamp)
-        }
-            .onFailure { throw UpdateTimeException.UpdateTimeNotSaved() }
+    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        return updateTimeService.getUpdateTime(userId = user.id)
     }
 
     override suspend fun saveTransfers(
         transfers: List<TransferCommandDto>,
         timestamp: Long,
         token: String
-    ) {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): SimpleResult<RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
             transferRepository.upsertTransfers(
                 transfers = transfers.map { it.toDataModel(userId = user.id) }
             )
+        }.onFailure {
+            return SimpleResult.Error(TransferError.TransfersNotSaved)
         }
-            .onFailure { throw TransferError.TransfersNotSaved() }
 
-        saveUpdateTime(timestamp = timestamp, userId = user.id)
+        return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
     }
 
     override suspend fun getTransfersAfterTimestamp(
         timestamp: Long,
         token: String
-    ): List<TransferQueryDto>? {
-        val user = authorizeAtLeastAsUser(token = token)
+    ): ResultData<List<TransferQueryDto>, RootError> {
+        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
-        return runCatching {
+        val transfers = runCatching {
             transferRepository.getTransfersAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
+        }.getOrElse {
+            return ResultData.Error(TransferError.TransfersNotFetched)
         }
-            .onFailure { throw TransferError.TransfersNotFetched() }
-            .getOrNull()
+
+        return ResultData.Success(data = transfers)
     }
 
     override suspend fun saveTransfersAndGetAfterTimestamp(
@@ -73,8 +64,9 @@ class TransferServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): List<TransferQueryDto>? {
+    ): ResultData<List<TransferQueryDto>, RootError> {
         saveTransfers(transfers = transfers, timestamp = timestamp, token = token)
+            .returnIfError { return ResultData.Error(it) }
         return getTransfersAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

@@ -1,7 +1,7 @@
 package com.glanci.auth.domain.service
 
 import com.glanci.auth.domain.model.firebase.FirebaseUser
-import com.glanci.auth.error.AuthError
+import com.glanci.request.domain.error.AuthError
 import com.glanci.request.domain.ResultData
 import com.glanci.request.domain.SimpleResult
 

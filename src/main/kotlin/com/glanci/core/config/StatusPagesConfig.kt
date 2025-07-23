@@ -1,16 +1,6 @@
 package com.glanci.core.config
 
-import com.glanci.account.error.AccountError
 import com.glanci.auth.error.AuthException
-import com.glanci.budget.error.BudgetError
-import com.glanci.budget.error.BudgetOnWidgetError
-import com.glanci.category.error.CategoryError
-import com.glanci.categoryCollection.error.CategoryCollectionError
-import com.glanci.core.error.UpdateTimeException
-import com.glanci.navigation.error.NavigationButtonError
-import com.glanci.personalization.error.WidgetError
-import com.glanci.record.error.RecordError
-import com.glanci.transfer.error.TransferError
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
@@ -28,76 +18,6 @@ fun Application.configureStatusPages(
         exception<AuthException> { call, cause ->
             call.respondText(
                 text = "Auth error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<UpdateTimeException> { call, cause ->
-            call.respondText(
-                text = "UpdateTime error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<AccountError> { call, cause ->
-            call.respondText(
-                text = "Account error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<CategoryError> { call, cause ->
-            call.respondText(
-                text = "Category error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<RecordError> { call, cause ->
-            call.respondText(
-                text = "Record error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<TransferError> { call, cause ->
-            call.respondText(
-                text = "Transfer error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<CategoryCollectionError> { call, cause ->
-            call.respondText(
-                text = "CategoryCollection error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<BudgetError> { call, cause ->
-            call.respondText(
-                text = "Budget error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<BudgetOnWidgetError> { call, cause ->
-            call.respondText(
-                text = "BudgetOnWidget error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<WidgetError> { call, cause ->
-            call.respondText(
-                text = "Widget error ${cause.statusCode.value}: ${cause.message}",
-                status = cause.statusCode
-            )
-        }
-
-        exception<NavigationButtonError> { call, cause ->
-            call.respondText(
-                text = "NavigationButton error ${cause.statusCode.value}: ${cause.message}",
                 status = cause.statusCode
             )
         }

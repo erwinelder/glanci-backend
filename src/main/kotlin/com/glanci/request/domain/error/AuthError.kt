@@ -1,18 +1,11 @@
-package com.glanci.auth.error
-
-import com.glanci.request.domain.RootError
+package com.glanci.request.domain.error
 
 enum class AuthError : RootError {
     InvalidToken,
     InsufficientPermissions,
     AppVersionIsBelowRequired,
-    UserAuthDataIsMissingOrInvalid,
     ErrorDuringExtractingJwtSecret,
     ErrorDuringCreatingJwtToken,
-    SignUpFormIsMissingOrInvalid,
-    UserCredentialsAreMissingOrInvalid,
-    UserIdIsMissing,
-    OobCodeIsMissing,
     OobCodeExpired,
     InvalidOobCode,
     InvalidCredentials,
@@ -26,23 +19,16 @@ enum class AuthError : RootError {
     SendingVerificationEmailFailed,
     EmailVerificationFailed,
     EmailNotVerified,
-    EmailUpdateRequestIsMissingOrInvalid,
     EmailUpdateRequestFailed,
     EmailUpdateFailed,
-    PasswordUpdateRequestIsMissingOrInvalid,
     PasswordUpdateFailed,
-    EmailIsMissing,
     PasswordResetRequestFailed,
-    PasswordResetRequestIsMissingOrInvalid,
     PasswordResetFailed,
     UserDeletionFailed,
-    SaveLanguageRequestIsMissingOrInvalid,
     InvalidLanguage,
 
     UserNotFound,
-    UsersNotFound,
     UserNotFetched,
-    UsersNotFetched,
     UserNotCreated,
     UserNameNotSaved,
     UserEmailNotSaved,
