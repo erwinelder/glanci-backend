@@ -1,9 +1,9 @@
 package com.glanci.auth.domain.service
 
 import com.glanci.auth.data.repository.UserRepository
-import com.glanci.auth.domain.dto.CheckAppVersionRequestDto
-import com.glanci.auth.domain.dto.UserDto
-import com.glanci.auth.domain.dto.UserWithTokenDto
+import com.glanci.auth.shared.dto.CheckAppVersionRequestDto
+import com.glanci.auth.shared.dto.UserDto
+import com.glanci.auth.shared.dto.UserWithTokenDto
 import com.glanci.auth.domain.model.AppVersionValidator
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserDataValidator
@@ -161,6 +161,8 @@ class AuthServiceImpl(
 
     override suspend fun saveUserName(name: String, token: String): SimpleResult<AuthError> {
         val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+
+        if (!UserDataValidator.validateName(name)) return SimpleResult.Error(AuthError.InvalidName)
 
         runCatching {
             userRepository.saveUserName(userId = userData.id, name = name)

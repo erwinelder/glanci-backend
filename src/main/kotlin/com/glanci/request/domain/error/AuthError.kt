@@ -6,32 +6,38 @@ enum class AuthError : RootError {
     AppVersionIsBelowRequired,
     ErrorDuringExtractingJwtSecret,
     ErrorDuringCreatingJwtToken,
+    SignUpFailed,
+
     OobCodeExpired,
     InvalidOobCode,
-    InvalidCredentials,
-    InvalidName,
-    InvalidEmail,
-    InvalidPassword,
     ErrorDuringFetchingUserDataFromAuthProvider,
-    ErrorDuringVerifyingOobCodeByAuthProvider,
-    UserAlreadyExists,
-    SignUpFailed,
+    ErrorDuringVerifyingOobCodeAtAuthProvider,
+    ErrorDuringDeletingUserAtAuthProvider,
+
     SendingVerificationEmailFailed,
     EmailVerificationFailed,
     EmailNotVerified,
+
     EmailUpdateRequestFailed,
     EmailUpdateFailed,
+
     PasswordUpdateFailed,
+
     PasswordResetRequestFailed,
     PasswordResetFailed,
-    UserDeletionFailed,
+
+    InvalidCredentials,
+    InvalidEmail,
+    InvalidPassword,
+    InvalidName,
     InvalidLanguage,
 
+    UserAlreadyExists,
     UserNotFound,
     UserNotFetched,
     UserNotCreated,
-    UserNameNotSaved,
     UserEmailNotSaved,
+    UserNameNotSaved,
     UserLanguageNotSaved,
     UserSubscriptionNotSaved,
     UserNotDeleted

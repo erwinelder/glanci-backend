@@ -77,11 +77,11 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             return when (error.error.message) {
                 "EXPIRED_OOB_CODE" -> ResultData.Error(AuthError.OobCodeExpired)
                 "INVALID_OOB_CODE" -> ResultData.Error(AuthError.InvalidOobCode)
-                else -> ResultData.Error(AuthError.ErrorDuringVerifyingOobCodeByAuthProvider)
+                else -> ResultData.Error(AuthError.ErrorDuringVerifyingOobCodeAtAuthProvider)
             }
         }
         if (response.status != HttpStatusCode.OK) {
-            return ResultData.Error(AuthError.ErrorDuringVerifyingOobCodeByAuthProvider)
+            return ResultData.Error(AuthError.ErrorDuringVerifyingOobCodeAtAuthProvider)
         }
 
         return ResultData.Success(data = responseJson)
@@ -269,11 +269,11 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
                 setBody(body = hashMapOf("idToken" to authResponse.idToken))
             }
         }.getOrElse {
-            return SimpleResult.Error(AuthError.UserDeletionFailed)
+            return SimpleResult.Error(AuthError.ErrorDuringDeletingUserAtAuthProvider)
         }
 
         if (response.status != HttpStatusCode.OK) {
-            return SimpleResult.Error(AuthError.UserDeletionFailed)
+            return SimpleResult.Error(AuthError.ErrorDuringDeletingUserAtAuthProvider)
         }
 
         return SimpleResult.Success()

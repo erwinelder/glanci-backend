@@ -11,13 +11,16 @@ import com.glanci.personalization.shared.service.WidgetService
 import com.glanci.record.shared.service.RecordService
 import com.glanci.transfer.shared.service.TransferService
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.rpc.krpc.ktor.server.rpc
 import org.koin.ktor.ext.get
 
 fun Application.configureRouting() {
     routing {
-        coreRoutes()
+        get("/") {
+            call.respondText("Welcome to Glanci!")
+        }
         rpc("/auth") {
             registerService<AuthService> { this@configureRouting.get() }
         }

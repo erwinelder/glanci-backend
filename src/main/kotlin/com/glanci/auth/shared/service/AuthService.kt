@@ -1,8 +1,8 @@
 package com.glanci.auth.shared.service
 
-import com.glanci.auth.domain.dto.CheckAppVersionRequestDto
-import com.glanci.auth.domain.dto.UserDto
-import com.glanci.auth.domain.dto.UserWithTokenDto
+import com.glanci.auth.shared.dto.CheckAppVersionRequestDto
+import com.glanci.auth.shared.dto.UserDto
+import com.glanci.auth.shared.dto.UserWithTokenDto
 import com.glanci.request.domain.error.AuthError
 import com.glanci.request.domain.ResultData
 import com.glanci.request.domain.SimpleResult

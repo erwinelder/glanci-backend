@@ -1,7 +1,8 @@
-package com.glanci.auth.domain.dto
+package com.glanci.auth.shared.dto
 
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserRole
+import com.glanci.core.domain.model.app.AppSubscription
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,7 +12,7 @@ data class UserWithTokenDto(
     val role: UserRole,
     val name: String,
     val langCode: String,
-    val subscription: String,
+    val subscription: AppSubscription,
     val timestamp: Long,
     val token: String
 ) {
@@ -24,7 +25,7 @@ data class UserWithTokenDto(
                 role = user.role,
                 name = user.name,
                 langCode = user.language.langCode,
-                subscription = user.subscription.name,
+                subscription = user.subscription,
                 timestamp = user.timestamp,
                 token = token
             )
