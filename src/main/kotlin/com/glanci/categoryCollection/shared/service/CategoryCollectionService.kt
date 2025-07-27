@@ -1,9 +1,9 @@
 package com.glanci.categoryCollection.shared.service
 
 import com.glanci.categoryCollection.shared.dto.CategoryCollectionWithAssociationsDto
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.DataError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.error.DataError
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc

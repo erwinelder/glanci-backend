@@ -8,12 +8,12 @@ import com.glanci.category.shared.dto.CategoryCommandDto
 import com.glanci.category.shared.dto.CategoryQueryDto
 import com.glanci.category.shared.service.CategoryService
 import com.glanci.core.domain.service.UpdateTimeService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.CategoryError
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.CategoryDataError
+import com.glanci.request.shared.error.DataError
 
 class CategoryServiceImpl(
     private val categoryRepository: CategoryRepository,
@@ -37,7 +37,7 @@ class CategoryServiceImpl(
                 categories = categories.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(CategoryError.CategoriesNotSaved)
+            return SimpleResult.Error(CategoryDataError.CategoriesNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -53,7 +53,7 @@ class CategoryServiceImpl(
             categoryRepository.getCategoriesAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
         }.getOrElse {
-            return ResultData.Error(CategoryError.CategoriesNotFetched)
+            return ResultData.Error(CategoryDataError.CategoriesNotFetched)
         }
 
         return ResultData.Success(data = categories)

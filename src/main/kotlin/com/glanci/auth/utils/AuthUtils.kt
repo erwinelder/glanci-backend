@@ -6,8 +6,8 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserAuthData
 import com.glanci.auth.domain.model.UserRole
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.error.AuthDataError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.error.AuthDataError
 import java.util.*
 
 

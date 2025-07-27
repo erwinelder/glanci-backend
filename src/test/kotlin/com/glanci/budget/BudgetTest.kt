@@ -7,8 +7,8 @@ import com.glanci.budget.shared.dto.BudgetWithAssociationsDto
 import com.glanci.budget.shared.service.BudgetService
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.error.BudgetError
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.error.BudgetDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient
@@ -158,7 +158,7 @@ class BudgetTest {
             budgets = budgetsWithAssociationsToSave, timestamp = timestamp, token = token
         ).getErrorOrNull().run {
             assertNotNull(this)
-            assertEquals(BudgetError.BudgetsNotSaved, this)
+            assertEquals(BudgetDataError.BudgetsNotSaved, this)
         }
 
         service.getBudgetsWithAssociationsAfterTimestamp(timestamp = 0, token = token).getDataOrNull().run {

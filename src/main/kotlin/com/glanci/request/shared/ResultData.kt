@@ -1,7 +1,7 @@
-package com.glanci.request.domain
+package com.glanci.request.shared
 
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.success.RootSuccess
+import com.glanci.request.shared.error.DataError
+import com.glanci.request.shared.success.DataSuccess
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -38,7 +38,7 @@ sealed interface ResultData<out D, out E : DataError> {
         }
     }
 
-    fun <S : RootSuccess?> toDefaultResult(success: S): Result<S, E> {
+    fun <S : DataSuccess?> toDefaultResult(success: S): Result<S, E> {
         return when (this) {
             is Success -> Result.Success(success)
             is Error -> Result.Error(this.error)

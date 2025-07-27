@@ -7,12 +7,12 @@ import com.glanci.navigation.mapper.toDataModel
 import com.glanci.navigation.mapper.toDto
 import com.glanci.navigation.shared.dto.NavigationButtonDto
 import com.glanci.navigation.shared.service.NavigationButtonService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.NavigationButtonError
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.DataError
+import com.glanci.request.shared.error.NavigationButtonDataError
 
 class NavigationButtonServiceImpl(
     private val navigationButtonRepository: NavigationButtonRepository,
@@ -36,7 +36,7 @@ class NavigationButtonServiceImpl(
                 buttons = buttons.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(NavigationButtonError.NavigationButtonsNotSaved)
+            return SimpleResult.Error(NavigationButtonDataError.NavigationButtonsNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -52,7 +52,7 @@ class NavigationButtonServiceImpl(
             navigationButtonRepository.getNavigationButtonsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
         }.getOrElse {
-            return ResultData.Error(NavigationButtonError.NavigationButtonsNotFetched)
+            return ResultData.Error(NavigationButtonDataError.NavigationButtonsNotFetched)
         }
 
         return ResultData.Success(data = accounts)

@@ -1,7 +1,6 @@
 package com.glanci.account.domain.service
 
 import com.glanci.account.data.repository.AccountRepository
-import com.glanci.request.domain.error.AccountError
 import com.glanci.account.mapper.toDataModel
 import com.glanci.account.mapper.toQueryDto
 import com.glanci.account.shared.dto.AccountCommandDto
@@ -9,8 +8,12 @@ import com.glanci.account.shared.dto.AccountQueryDto
 import com.glanci.account.shared.service.AccountService
 import com.glanci.auth.utils.authorizeAtLeastAsUserResult
 import com.glanci.core.domain.service.UpdateTimeService
-import com.glanci.request.domain.*
-import com.glanci.request.domain.error.DataError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.AccountDataError
+import com.glanci.request.shared.error.DataError
 
 class AccountServiceImpl(
     private val accountRepository: AccountRepository,
@@ -34,7 +37,7 @@ class AccountServiceImpl(
                 accounts = accounts.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(AccountError.AccountsNotSaved)
+            return SimpleResult.Error(AccountDataError.AccountsNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -50,7 +53,7 @@ class AccountServiceImpl(
             accountRepository.getAccountsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
         }.getOrElse {
-            return ResultData.Error(AccountError.AccountsNotFetched)
+            return ResultData.Error(AccountDataError.AccountsNotFetched)
         }
 
         return ResultData.Success(data = accounts)

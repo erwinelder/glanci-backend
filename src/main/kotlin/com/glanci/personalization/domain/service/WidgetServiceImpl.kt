@@ -7,12 +7,12 @@ import com.glanci.personalization.mapper.toDataModel
 import com.glanci.personalization.mapper.toDto
 import com.glanci.personalization.shared.dto.WidgetDto
 import com.glanci.personalization.shared.service.WidgetService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.error.WidgetError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.DataError
+import com.glanci.request.shared.error.WidgetDataError
 
 class WidgetServiceImpl(
     private val widgetRepository: WidgetRepository,
@@ -36,7 +36,7 @@ class WidgetServiceImpl(
                 widgets = widgets.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(WidgetError.WidgetsNotSaved)
+            return SimpleResult.Error(WidgetDataError.WidgetsNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -52,7 +52,7 @@ class WidgetServiceImpl(
             widgetRepository.getWidgetsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
         }.getOrElse {
-            return ResultData.Error(WidgetError.WidgetsNotFetched)
+            return ResultData.Error(WidgetDataError.WidgetsNotFetched)
         }
 
         return ResultData.Success(data = accounts)

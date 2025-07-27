@@ -7,8 +7,8 @@ import com.glanci.categoryCollection.shared.dto.CategoryCollectionWithAssociatio
 import com.glanci.categoryCollection.shared.service.CategoryCollectionService
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.error.CategoryCollectionError
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.error.CategoryCollectionDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient
@@ -157,7 +157,7 @@ class CategoryCollectionTest {
         service.saveCategoryCollectionsWithAssociations(
             collections = collectionsWithAssociationsToSave, timestamp = timestamp, token = token
         ).getErrorOrNull().run {
-            assertEquals(CategoryCollectionError.CategoryCollectionsNotSaved, this)
+            assertEquals(CategoryCollectionDataError.CategoryCollectionsNotSaved, this)
         }
 
         service.getCategoryCollectionsWithAssociationsAfterTimestamp(timestamp = 0, token = token).getDataOrNull().run {

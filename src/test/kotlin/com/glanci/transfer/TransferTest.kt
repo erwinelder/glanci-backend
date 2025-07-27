@@ -3,8 +3,8 @@ package com.glanci.transfer
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.error.TransferError
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.error.TransferDataError
 import com.glanci.transfer.shared.dto.TransferCommandDto
 import com.glanci.transfer.shared.service.TransferService
 import com.glanci.utils.configureRcp
@@ -149,7 +149,7 @@ class TransferTest {
         )
 
         service.saveTransfers(transfers = transfersToSave, timestamp = timestamp, token = token).getErrorOrNull().run {
-            assertEquals(TransferError.TransfersNotSaved, this)
+            assertEquals(TransferDataError.TransfersNotSaved, this)
         }
 
         service.getTransfersAfterTimestamp(timestamp = 0, token = token).getDataOrNull().run {

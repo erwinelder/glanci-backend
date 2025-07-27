@@ -5,8 +5,8 @@ import com.glanci.budget.shared.dto.BudgetOnWidgetDto
 import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.error.BudgetOnWidgetError
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.error.BudgetOnWidgetDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient
@@ -110,7 +110,7 @@ class BudgetOnWidgetTest {
 
         service.saveBudgetsOnWidget(budgets = budgetsToSave, timestamp = timestamp, token = token).getErrorOrNull().run {
             assertNotNull(this)
-            assertEquals(BudgetOnWidgetError.BudgetsOnWidgetNotSaved, this)
+            assertEquals(BudgetOnWidgetDataError.BudgetsOnWidgetNotSaved, this)
         }
 
         service.getBudgetsOnWidgetAfterTimestamp(timestamp = 0, token = token).getDataOrNull().run {

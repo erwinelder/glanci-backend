@@ -7,8 +7,8 @@ import com.glanci.record.shared.dto.RecordCommandDto
 import com.glanci.record.shared.dto.RecordItemDto
 import com.glanci.record.shared.dto.RecordWithItemsCommandDto
 import com.glanci.record.shared.service.RecordService
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.error.RecordError
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.error.RecordDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient
@@ -163,7 +163,7 @@ class RecordTest {
         service.saveRecordsWithItems(
             recordsWithItems = recordsWithItemsToSave, timestamp = timestamp, token = token
         ).getErrorOrNull().run {
-            assertEquals(RecordError.RecordsWithItemsNotSaved, this)
+            assertEquals(RecordDataError.RecordsWithItemsNotSaved, this)
         }
 
         service.getRecordsWithItemsAfterTimestamp(timestamp = 0, token = token).getDataOrNull().run {

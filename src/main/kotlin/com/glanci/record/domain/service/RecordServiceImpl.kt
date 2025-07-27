@@ -8,12 +8,12 @@ import com.glanci.record.mapper.toQueryDto
 import com.glanci.record.shared.dto.RecordWithItemsCommandDto
 import com.glanci.record.shared.dto.RecordWithItemsQueryDto
 import com.glanci.record.shared.service.RecordService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.RecordError
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.DataError
+import com.glanci.request.shared.error.RecordDataError
 
 class RecordServiceImpl(
     private val recordRepository: RecordRepository,
@@ -37,7 +37,7 @@ class RecordServiceImpl(
                 recordsWithItems = recordsWithItems.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(RecordError.RecordsWithItemsNotSaved)
+            return SimpleResult.Error(RecordDataError.RecordsWithItemsNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -53,7 +53,7 @@ class RecordServiceImpl(
             recordRepository.getRecordsWithItemsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
         }.getOrElse {
-            return ResultData.Error(RecordError.RecordsWithItemsNotFetched)
+            return ResultData.Error(RecordDataError.RecordsWithItemsNotFetched)
         }
 
         return ResultData.Success(data = recordsWithItems)

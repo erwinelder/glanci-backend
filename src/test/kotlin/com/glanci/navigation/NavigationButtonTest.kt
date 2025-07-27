@@ -5,7 +5,7 @@ import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
 import com.glanci.navigation.shared.dto.NavigationButtonDto
 import com.glanci.navigation.shared.service.NavigationButtonService
-import com.glanci.request.domain.error.AuthDataError
+import com.glanci.request.shared.error.AuthDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient

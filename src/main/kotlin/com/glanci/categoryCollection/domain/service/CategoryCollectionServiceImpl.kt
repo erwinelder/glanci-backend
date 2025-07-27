@@ -7,12 +7,12 @@ import com.glanci.categoryCollection.mapper.toDto
 import com.glanci.categoryCollection.shared.dto.CategoryCollectionWithAssociationsDto
 import com.glanci.categoryCollection.shared.service.CategoryCollectionService
 import com.glanci.core.domain.service.UpdateTimeService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.CategoryCollectionError
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.CategoryCollectionDataError
+import com.glanci.request.shared.error.DataError
 
 class CategoryCollectionServiceImpl(
     private val categoryCollectionRepository: CategoryCollectionRepository,
@@ -36,7 +36,7 @@ class CategoryCollectionServiceImpl(
                 collections = collections.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(CategoryCollectionError.CategoryCollectionsNotSaved)
+            return SimpleResult.Error(CategoryCollectionDataError.CategoryCollectionsNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -53,7 +53,7 @@ class CategoryCollectionServiceImpl(
                 .getCategoryCollectionsWithAssociationsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
         }.getOrElse {
-            return ResultData.Error(CategoryCollectionError.CategoryCollectionsNotFetched)
+            return ResultData.Error(CategoryCollectionDataError.CategoryCollectionsNotFetched)
         }
 
         return ResultData.Success(data = collectionsWithAssociations)

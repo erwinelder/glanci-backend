@@ -1,7 +1,7 @@
 package com.glanci.auth.domain.model
 
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.SimpleResult
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.SimpleResult
 
 object AppVersionValidator {
 

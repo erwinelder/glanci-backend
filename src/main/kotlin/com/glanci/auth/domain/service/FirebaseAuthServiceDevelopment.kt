@@ -1,9 +1,9 @@
 package com.glanci.auth.domain.service
 
 import com.glanci.auth.domain.model.firebase.FirebaseUser
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
+import com.glanci.request.shared.error.AuthDataError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
 
 class FirebaseAuthServiceDevelopment : FirebaseAuthService {
 

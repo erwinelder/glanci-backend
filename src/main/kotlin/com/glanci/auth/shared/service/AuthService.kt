@@ -3,9 +3,9 @@ package com.glanci.auth.shared.service
 import com.glanci.auth.shared.dto.CheckAppVersionRequestDto
 import com.glanci.auth.shared.dto.UserDto
 import com.glanci.auth.shared.dto.UserWithTokenDto
-import com.glanci.request.domain.error.AuthDataError
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.error.AuthDataError
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc

@@ -8,7 +8,7 @@ import com.glanci.auth.domain.model.AppVersionValidator
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserDataValidator
 import com.glanci.auth.domain.model.UserRole
-import com.glanci.request.domain.error.AuthDataError
+import com.glanci.request.shared.error.AuthDataError
 import com.glanci.auth.mapper.toDomainModel
 import com.glanci.auth.mapper.toDto
 import com.glanci.auth.shared.service.AuthService
@@ -17,10 +17,10 @@ import com.glanci.auth.utils.createJwtOrNull
 import com.glanci.core.domain.model.app.AppLanguage
 import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
 
 class AuthServiceImpl(
     private val firebaseAuthService: FirebaseAuthService,

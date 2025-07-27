@@ -7,12 +7,12 @@ import com.glanci.budget.mapper.toDto
 import com.glanci.budget.shared.dto.BudgetOnWidgetDto
 import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.core.domain.service.UpdateTimeService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.BudgetOnWidgetError
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.BudgetOnWidgetDataError
+import com.glanci.request.shared.error.DataError
 
 class BudgetOnWidgetServiceImpl(
     private val budgetOnWidgetRepository: BudgetOnWidgetRepository,
@@ -36,7 +36,7 @@ class BudgetOnWidgetServiceImpl(
                 budgets = budgets.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(BudgetOnWidgetError.BudgetsOnWidgetNotSaved)
+            return SimpleResult.Error(BudgetOnWidgetDataError.BudgetsOnWidgetNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -52,7 +52,7 @@ class BudgetOnWidgetServiceImpl(
             budgetOnWidgetRepository.getBudgetsOnWidgetAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
         }.getOrElse {
-            return ResultData.Error(BudgetOnWidgetError.BudgetsOnWidgetNotFetched)
+            return ResultData.Error(BudgetOnWidgetDataError.BudgetsOnWidgetNotFetched)
         }
 
         return ResultData.Success(data = budgets)

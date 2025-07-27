@@ -2,12 +2,12 @@ package com.glanci.transfer.domain.service
 
 import com.glanci.auth.utils.authorizeAtLeastAsUserResult
 import com.glanci.core.domain.service.UpdateTimeService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.error.TransferError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.DataError
+import com.glanci.request.shared.error.TransferDataError
 import com.glanci.transfer.data.repository.TransferRepository
 import com.glanci.transfer.mapper.toDataModel
 import com.glanci.transfer.mapper.toQueryDto
@@ -37,7 +37,7 @@ class TransferServiceImpl(
                 transfers = transfers.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(TransferError.TransfersNotSaved)
+            return SimpleResult.Error(TransferDataError.TransfersNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -53,7 +53,7 @@ class TransferServiceImpl(
             transferRepository.getTransfersAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toQueryDto() }
         }.getOrElse {
-            return ResultData.Error(TransferError.TransfersNotFetched)
+            return ResultData.Error(TransferDataError.TransfersNotFetched)
         }
 
         return ResultData.Success(data = transfers)

@@ -7,12 +7,12 @@ import com.glanci.budget.mapper.toDto
 import com.glanci.budget.shared.dto.BudgetWithAssociationsDto
 import com.glanci.budget.shared.service.BudgetService
 import com.glanci.core.domain.service.UpdateTimeService
-import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.BudgetError
-import com.glanci.request.domain.error.DataError
-import com.glanci.request.domain.getDataOrReturn
-import com.glanci.request.domain.returnIfError
+import com.glanci.request.shared.ResultData
+import com.glanci.request.shared.SimpleResult
+import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.error.BudgetDataError
+import com.glanci.request.shared.error.DataError
 
 class BudgetServiceImpl(
     private val budgetRepository: BudgetRepository,
@@ -36,7 +36,7 @@ class BudgetServiceImpl(
                 budgetsWithAssociations = budgets.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
-            return SimpleResult.Error(BudgetError.BudgetsNotSaved)
+            return SimpleResult.Error(BudgetDataError.BudgetsNotSaved)
         }
 
         return updateTimeService.saveUpdateTime(timestamp = timestamp, userId = user.id)
@@ -52,7 +52,7 @@ class BudgetServiceImpl(
             budgetRepository.getBudgetsWithAssociationsAfterTimestamp(userId = user.id, timestamp = timestamp)
                 .map { it.toDto() }
         }.getOrElse {
-            return ResultData.Error(BudgetError.BudgetsNotFetched)
+            return ResultData.Error(BudgetDataError.BudgetsNotFetched)
         }
 
         return ResultData.Success(data = budgetsWithAssociations)
