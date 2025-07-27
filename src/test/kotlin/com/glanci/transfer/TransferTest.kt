@@ -3,7 +3,7 @@ package com.glanci.transfer
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthError
+import com.glanci.request.domain.error.AuthDataError
 import com.glanci.request.domain.error.TransferError
 import com.glanci.transfer.shared.dto.TransferCommandDto
 import com.glanci.transfer.shared.service.TransferService
@@ -173,7 +173,7 @@ class TransferTest {
 
         service.getTransfersAfterTimestamp(timestamp = 0, token = "token").getErrorOrNull().run {
             assertNotNull(this)
-            assertEquals(AuthError.InvalidToken, this)
+            assertEquals(AuthDataError.InvalidToken, this)
         }
 
         client.close()

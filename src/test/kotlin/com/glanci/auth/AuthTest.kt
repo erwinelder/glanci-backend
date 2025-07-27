@@ -1,6 +1,6 @@
 package com.glanci.auth
 
-import com.glanci.request.domain.error.AuthError
+import com.glanci.request.domain.error.AuthDataError
 import com.glanci.auth.shared.service.AuthService
 import com.glanci.mainModule
 import com.glanci.utils.configureRcp
@@ -38,7 +38,7 @@ class AuthTest {
 
         val signInError = service.signIn(email = "new_user@domain.com", password = "password").getErrorOrNull()
 
-        assertEquals(AuthError.UserNotFound, signInError)
+        assertEquals(AuthDataError.UserNotFound, signInError)
 
         val signUpError = service.signUp(
             name = "New user",

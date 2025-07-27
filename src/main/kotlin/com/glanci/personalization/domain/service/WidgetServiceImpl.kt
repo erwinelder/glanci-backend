@@ -9,7 +9,7 @@ import com.glanci.personalization.shared.dto.WidgetDto
 import com.glanci.personalization.shared.service.WidgetService
 import com.glanci.request.domain.ResultData
 import com.glanci.request.domain.SimpleResult
-import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.error.DataError
 import com.glanci.request.domain.error.WidgetError
 import com.glanci.request.domain.getDataOrReturn
 import com.glanci.request.domain.returnIfError
@@ -19,7 +19,7 @@ class WidgetServiceImpl(
     private val updateTimeService: UpdateTimeService
 ) : WidgetService {
 
-    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+    override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
@@ -28,7 +28,7 @@ class WidgetServiceImpl(
         widgets: List<WidgetDto>,
         timestamp: Long,
         token: String
-    ): SimpleResult<RootError> {
+    ): SimpleResult<DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
@@ -45,7 +45,7 @@ class WidgetServiceImpl(
     override suspend fun getWidgetsAfterTimestamp(
         timestamp: Long,
         token: String
-    ): ResultData<List<WidgetDto>, RootError> {
+    ): ResultData<List<WidgetDto>, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
         val accounts = runCatching {
@@ -63,7 +63,7 @@ class WidgetServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): ResultData<List<WidgetDto>, RootError> {
+    ): ResultData<List<WidgetDto>, DataError> {
         saveWidgets(widgets = widgets, timestamp = timestamp, token = token)
             .returnIfError { return ResultData.Error(it) }
         return getWidgetsAfterTimestamp(timestamp = localTimestamp, token = token)

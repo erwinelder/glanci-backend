@@ -7,7 +7,7 @@ import com.glanci.record.shared.dto.RecordCommandDto
 import com.glanci.record.shared.dto.RecordItemDto
 import com.glanci.record.shared.dto.RecordWithItemsCommandDto
 import com.glanci.record.shared.service.RecordService
-import com.glanci.request.domain.error.AuthError
+import com.glanci.request.domain.error.AuthDataError
 import com.glanci.request.domain.error.RecordError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
@@ -191,7 +191,7 @@ class RecordTest {
 
         service.getRecordsWithItemsAfterTimestamp(timestamp = 0, token = "token").getErrorOrNull().run {
             assertNotNull(this)
-            assertEquals(AuthError.InvalidToken, this)
+            assertEquals(AuthDataError.InvalidToken, this)
         }
 
         client.close()

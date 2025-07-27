@@ -10,7 +10,7 @@ import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.request.domain.ResultData
 import com.glanci.request.domain.SimpleResult
 import com.glanci.request.domain.error.BudgetOnWidgetError
-import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.error.DataError
 import com.glanci.request.domain.getDataOrReturn
 import com.glanci.request.domain.returnIfError
 
@@ -19,7 +19,7 @@ class BudgetOnWidgetServiceImpl(
     private val updateTimeService: UpdateTimeService
 ) : BudgetOnWidgetService {
 
-    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+    override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
@@ -28,7 +28,7 @@ class BudgetOnWidgetServiceImpl(
         budgets: List<BudgetOnWidgetDto>,
         timestamp: Long,
         token: String
-    ): SimpleResult<RootError> {
+    ): SimpleResult<DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
@@ -45,7 +45,7 @@ class BudgetOnWidgetServiceImpl(
     override suspend fun getBudgetsOnWidgetAfterTimestamp(
         timestamp: Long,
         token: String
-    ): ResultData<List<BudgetOnWidgetDto>, RootError> {
+    ): ResultData<List<BudgetOnWidgetDto>, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
         val budgets = runCatching {
@@ -63,7 +63,7 @@ class BudgetOnWidgetServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): ResultData<List<BudgetOnWidgetDto>, RootError> {
+    ): ResultData<List<BudgetOnWidgetDto>, DataError> {
         saveBudgetsOnWidget(budgets = budgets, timestamp = timestamp, token = token)
             .returnIfError { return ResultData.Error(it) }
         return getBudgetsOnWidgetAfterTimestamp(timestamp = localTimestamp, token = token)

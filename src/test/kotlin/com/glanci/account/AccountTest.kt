@@ -5,7 +5,7 @@ import com.glanci.account.shared.service.AccountService
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthError
+import com.glanci.request.domain.error.AuthDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
 import com.glanci.utils.getKrpcClient
@@ -117,7 +117,7 @@ class AccountTest {
 
         service.getAccountsAfterTimestamp(timestamp = 0, token = "token").getErrorOrNull().run {
             assertNotNull(this)
-            assertEquals(AuthError.InvalidToken, this)
+            assertEquals(AuthDataError.InvalidToken, this)
         }
 
         client.close()

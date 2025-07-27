@@ -1,6 +1,6 @@
 package com.glanci.request.domain.error
 
-enum class NavigationButtonError : RootError {
+enum class NavigationButtonError : DataError {
     NavigationButtonsNotSaved,
     NavigationButtonsNotFetched
 }

@@ -1,6 +1,6 @@
 package com.glanci.request.domain.error
 
-enum class WidgetError : RootError {
+enum class WidgetError : DataError {
     WidgetsNotSaved,
     WidgetsNotFetched
 }

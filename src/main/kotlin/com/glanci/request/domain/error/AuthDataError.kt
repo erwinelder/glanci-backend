@@ -1,6 +1,6 @@
 package com.glanci.request.domain.error
 
-enum class AuthError : RootError {
+enum class AuthDataError : DataError {
     InvalidToken,
     InsufficientPermissions,
     AppVersionIsBelowRequired,

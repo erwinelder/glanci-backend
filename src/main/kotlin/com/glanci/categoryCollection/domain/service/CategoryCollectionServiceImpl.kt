@@ -10,7 +10,7 @@ import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.request.domain.ResultData
 import com.glanci.request.domain.SimpleResult
 import com.glanci.request.domain.error.CategoryCollectionError
-import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.error.DataError
 import com.glanci.request.domain.getDataOrReturn
 import com.glanci.request.domain.returnIfError
 
@@ -19,7 +19,7 @@ class CategoryCollectionServiceImpl(
     private val updateTimeService: UpdateTimeService
 ) : CategoryCollectionService {
 
-    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+    override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
@@ -28,7 +28,7 @@ class CategoryCollectionServiceImpl(
         collections: List<CategoryCollectionWithAssociationsDto>,
         timestamp: Long,
         token: String
-    ): SimpleResult<RootError> {
+    ): SimpleResult<DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
@@ -45,7 +45,7 @@ class CategoryCollectionServiceImpl(
     override suspend fun getCategoryCollectionsWithAssociationsAfterTimestamp(
         timestamp: Long,
         token: String
-    ): ResultData<List<CategoryCollectionWithAssociationsDto>, RootError> {
+    ): ResultData<List<CategoryCollectionWithAssociationsDto>, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
         val collectionsWithAssociations = runCatching {
@@ -64,7 +64,7 @@ class CategoryCollectionServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): ResultData<List<CategoryCollectionWithAssociationsDto>, RootError> {
+    ): ResultData<List<CategoryCollectionWithAssociationsDto>, DataError> {
         saveCategoryCollectionsWithAssociations(collections = collections, timestamp = timestamp, token = token)
             .returnIfError { return ResultData.Error(it) }
         return getCategoryCollectionsWithAssociationsAfterTimestamp(timestamp = localTimestamp, token = token)

@@ -1,6 +1,6 @@
 package com.glanci.request.domain.error
 
-enum class TransferError : RootError {
+enum class TransferError : DataError {
     TransfersNotSaved,
     TransfersNotFetched
 }

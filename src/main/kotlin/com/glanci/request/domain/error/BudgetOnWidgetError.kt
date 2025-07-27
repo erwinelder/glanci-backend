@@ -1,6 +1,6 @@
 package com.glanci.request.domain.error
 
-enum class BudgetOnWidgetError : RootError {
+enum class BudgetOnWidgetError : DataError {
     BudgetsOnWidgetNotSaved,
     BudgetsOnWidgetNotFetched
 }

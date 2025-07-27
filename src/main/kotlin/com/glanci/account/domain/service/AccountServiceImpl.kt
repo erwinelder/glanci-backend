@@ -10,14 +10,14 @@ import com.glanci.account.shared.service.AccountService
 import com.glanci.auth.utils.authorizeAtLeastAsUserResult
 import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.request.domain.*
-import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.error.DataError
 
 class AccountServiceImpl(
     private val accountRepository: AccountRepository,
     private val updateTimeService: UpdateTimeService
 ) : AccountService {
 
-    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+    override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
@@ -26,7 +26,7 @@ class AccountServiceImpl(
         accounts: List<AccountCommandDto>,
         timestamp: Long,
         token: String
-    ): SimpleResult<RootError> {
+    ): SimpleResult<DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
@@ -43,7 +43,7 @@ class AccountServiceImpl(
     override suspend fun getAccountsAfterTimestamp(
         timestamp: Long,
         token: String
-    ): ResultData<List<AccountQueryDto>, RootError> {
+    ): ResultData<List<AccountQueryDto>, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
         val accounts = runCatching {
@@ -61,7 +61,7 @@ class AccountServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): ResultData<List<AccountQueryDto>, RootError> {
+    ): ResultData<List<AccountQueryDto>, DataError> {
         saveAccounts(accounts = accounts, timestamp = timestamp, token = token)
             .returnIfError { return ResultData.Error(it) }
         return getAccountsAfterTimestamp(timestamp = localTimestamp, token = token)

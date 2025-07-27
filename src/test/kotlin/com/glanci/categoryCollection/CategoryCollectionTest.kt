@@ -7,7 +7,7 @@ import com.glanci.categoryCollection.shared.dto.CategoryCollectionWithAssociatio
 import com.glanci.categoryCollection.shared.service.CategoryCollectionService
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
-import com.glanci.request.domain.error.AuthError
+import com.glanci.request.domain.error.AuthDataError
 import com.glanci.request.domain.error.CategoryCollectionError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getJwt
@@ -185,7 +185,7 @@ class CategoryCollectionTest {
 
         service.getCategoryCollectionsWithAssociationsAfterTimestamp(timestamp = 0, token = "token").getErrorOrNull().run {
             assertNotNull(this)
-            assertEquals(AuthError.InvalidToken, this)
+            assertEquals(AuthDataError.InvalidToken, this)
         }
 
         client.close()

@@ -11,7 +11,7 @@ import com.glanci.record.shared.service.RecordService
 import com.glanci.request.domain.ResultData
 import com.glanci.request.domain.SimpleResult
 import com.glanci.request.domain.error.RecordError
-import com.glanci.request.domain.error.RootError
+import com.glanci.request.domain.error.DataError
 import com.glanci.request.domain.getDataOrReturn
 import com.glanci.request.domain.returnIfError
 
@@ -20,7 +20,7 @@ class RecordServiceImpl(
     private val updateTimeService: UpdateTimeService
 ) : RecordService {
 
-    override suspend fun getUpdateTime(token: String): ResultData<Long, RootError> {
+    override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
@@ -29,7 +29,7 @@ class RecordServiceImpl(
         recordsWithItems: List<RecordWithItemsCommandDto>,
         timestamp: Long,
         token: String
-    ): SimpleResult<RootError> {
+    ): SimpleResult<DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
 
         runCatching {
@@ -46,7 +46,7 @@ class RecordServiceImpl(
     override suspend fun getRecordsWithItemsAfterTimestamp(
         timestamp: Long,
         token: String
-    ): ResultData<List<RecordWithItemsQueryDto>, RootError> {
+    ): ResultData<List<RecordWithItemsQueryDto>, DataError> {
         val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
 
         val recordsWithItems = runCatching {
@@ -64,7 +64,7 @@ class RecordServiceImpl(
         timestamp: Long,
         localTimestamp: Long,
         token: String
-    ): ResultData<List<RecordWithItemsQueryDto>, RootError> {
+    ): ResultData<List<RecordWithItemsQueryDto>, DataError> {
         saveRecordsWithItems(recordsWithItems = recordsWithItems, timestamp = timestamp, token = token)
             .returnIfError { return ResultData.Error(it) }
         return getRecordsWithItemsAfterTimestamp(timestamp = localTimestamp, token = token)

@@ -1,6 +1,6 @@
 package com.glanci.request.domain.error
 
-enum class CategoryError : RootError {
+enum class CategoryError : DataError {
     CategoriesNotSaved,
     CategoriesNotFetched
 }

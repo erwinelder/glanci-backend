@@ -7,7 +7,7 @@ import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserAuthData
 import com.glanci.auth.domain.model.UserRole
 import com.glanci.request.domain.ResultData
-import com.glanci.request.domain.error.AuthError
+import com.glanci.request.domain.error.AuthDataError
 import java.util.*
 
 
@@ -29,13 +29,13 @@ fun createJwtOrNull(user: User): String? {
     }.getOrNull()
 }
 
-fun verifyAndDecodeJwtResult(token: String): ResultData<DecodedJWT, AuthError> {
+fun verifyAndDecodeJwtResult(token: String): ResultData<DecodedJWT, AuthDataError> {
     val secret = System.getenv("JWT_SECRET")?.takeIf { it.isNotBlank() }
     val issuer = System.getenv("JWT_ISSUER")?.takeIf { it.isNotBlank() }
     val audience = System.getenv("JWT_AUDIENCE")?.takeIf { it.isNotBlank() }
 
     if (secret == null || issuer == null || audience == null) {
-        return ResultData.Error(AuthError.ErrorDuringExtractingJwtSecret)
+        return ResultData.Error(AuthDataError.ErrorDuringExtractingJwtSecret)
     }
 
     val algorithm = Algorithm.HMAC256(secret)
@@ -50,7 +50,7 @@ fun verifyAndDecodeJwtResult(token: String): ResultData<DecodedJWT, AuthError> {
             .build()
             .verify(token)
     }.getOrElse {
-        return ResultData.Error(AuthError.InvalidToken)
+        return ResultData.Error(AuthDataError.InvalidToken)
     }
 
     return ResultData.Success(data = jwt)
@@ -70,13 +70,13 @@ fun DecodedJWT.getRoleFromJwt(): UserRole {
 }
 
 
-fun authorizeAtLeastAsUserResult(token: String): ResultData<UserAuthData, AuthError> {
+fun authorizeAtLeastAsUserResult(token: String): ResultData<UserAuthData, AuthDataError> {
     return verifyAndDecodeJwtResult(token = token).mapData {
         UserAuthData(id = it.getIdFromJwt(), role = it.getRoleFromJwt())
     }
 }
 
-fun authorizeAsAdmin(token: String): ResultData<UserAuthData, AuthError> {
+fun authorizeAsAdmin(token: String): ResultData<UserAuthData, AuthDataError> {
     val jwtResult = verifyAndDecodeJwtResult(token = token)
 
     return when (jwtResult) {
@@ -85,7 +85,7 @@ fun authorizeAsAdmin(token: String): ResultData<UserAuthData, AuthError> {
 
             val role = jwt.getRoleFromJwt()
             if (role != UserRole.Admin) {
-                ResultData.Error(AuthError.InsufficientPermissions)
+                ResultData.Error(AuthDataError.InsufficientPermissions)
             } else {
                 ResultData.Success(data = UserAuthData(id = jwt.getIdFromJwt(), role = UserRole.Admin))
             }
