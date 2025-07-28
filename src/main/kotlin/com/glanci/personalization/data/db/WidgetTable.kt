@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Table
 
 object WidgetTable : Table("widget") {
     val userId = integer("user_id").references(GlanciUserTable.id, onDelete = ReferenceOption.CASCADE)
-    val name = varchar("table_name", 50)
+    val name = varchar("name", 50)
     val orderNum = integer("order_num")
     val timestamp = long("timestamp")
     val deleted = bool("deleted")
