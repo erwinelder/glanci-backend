@@ -23,6 +23,8 @@ interface AuthService {
 
     suspend fun verifyEmailUpdate(oobCode: String, token: String): ResultData<UserWithTokenDto, AuthDataError>
 
+    suspend fun finishEmailUpdate(newEmail: String, password: String, token: String): ResultData<UserWithTokenDto, AuthDataError>
+
     suspend fun requestPasswordReset(email: String): SimpleResult<AuthDataError>
 
     suspend fun verifyPasswordReset(oobCode: String, newPassword: String): SimpleResult<AuthDataError>
