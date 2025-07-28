@@ -7,7 +7,18 @@ import com.glanci.request.shared.SimpleResult
 
 class FirebaseAuthServiceDevelopment : FirebaseAuthService {
 
+    val users = mutableListOf(
+        "base_user@domain.com",
+        "premium_user@domain.com",
+        "admin@domain.com",
+        "new_user@domain.com"
+    )
+
     override suspend fun signIn(email: String, password: String): ResultData<FirebaseUser, AuthDataError> {
+        if (email !in users) {
+            return ResultData.Error(error = AuthDataError.InvalidCredentials)
+        }
+
         val user = FirebaseUser(
             idToken = "token",
             uid = "uid",
@@ -25,6 +36,8 @@ class FirebaseAuthServiceDevelopment : FirebaseAuthService {
             email = email,
             emailVerified = true
         )
+
+        users.add(email)
 
         return ResultData.Success(data = user)
     }
@@ -61,6 +74,10 @@ class FirebaseAuthServiceDevelopment : FirebaseAuthService {
 
 
     override suspend fun deleteUser(email: String, password: String): SimpleResult<AuthDataError> {
+        if (email !in users) return SimpleResult.Error(error = AuthDataError.InvalidCredentials)
+
+        users.remove(email)
+
         return SimpleResult.Success()
     }
 

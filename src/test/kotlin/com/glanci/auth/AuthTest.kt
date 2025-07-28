@@ -15,7 +15,7 @@ import kotlin.test.assertNull
 class AuthTest {
 
     @Test
-    fun `test signIn`() = testApplication {
+    fun `signIn returns success`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "auth")
@@ -30,30 +30,45 @@ class AuthTest {
     }
 
     @Test
-    fun `test signUp`() = testApplication {
+    fun `successful signIn via Firebase creates a new user in the database`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
         val rcpClient = client.configureRcp(path = "auth")
         val service = rcpClient.withService<AuthService>()
 
-        val signInError = service.signIn(email = "new_user@domain.com", password = "password").getErrorOrNull()
+        val userWithToken = service.signIn(email = "new_user@domain.com", password = "password").getDataOrNull()
 
-        assertEquals(AuthDataError.UserNotFound, signInError)
+        assertNotNull(userWithToken)
+        assertEquals("new_user@domain.com", userWithToken.email)
+
+        client.close()
+    }
+
+    @Test
+    fun `signUp returns success`() = testApplication {
+        application { mainModule() }
+        val client = getKrpcClient()
+        val rcpClient = client.configureRcp(path = "auth")
+        val service = rcpClient.withService<AuthService>()
+
+        val signInError = service.signIn(email = "not_existing_user@domain.com", password = "password").getErrorOrNull()
+
+        assertEquals(AuthDataError.InvalidCredentials, signInError)
 
         val signUpError = service.signUp(
             name = "New user",
-            email = "new_user@domain.com",
+            email = "not_existing_user@domain.com",
             password = "Password0_",
             langCode = "en"
         ).getErrorOrNull()
 
         assertNull(signUpError)
 
-        val userWithToken = service.signIn(email = "new_user@domain.com", password = "password").getDataOrNull()
+        val userWithToken = service.signIn(email = "not_existing_user@domain.com", password = "password").getDataOrNull()
 
         assertNotNull(userWithToken)
         assertEquals(4, userWithToken.id)
-        assertEquals("new_user@domain.com", userWithToken.email)
+        assertEquals("not_existing_user@domain.com", userWithToken.email)
 
         client.close()
     }

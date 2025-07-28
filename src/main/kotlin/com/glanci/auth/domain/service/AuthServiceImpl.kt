@@ -25,9 +25,22 @@ class AuthServiceImpl(
 ) : AuthService {
 
     private fun getUserWithToken(email: String): ResultData<UserWithTokenDto, AuthDataError> {
-        val user = runCatching { userRepository.getUser(email = email) }
+        var user = runCatching { userRepository.getUser(email = email) }
             .getOrElse { return ResultData.Error(AuthDataError.UserNotFetched) }
-            ?: return ResultData.Error(AuthDataError.UserNotFound)
+
+        if (user == null) {
+            user = User(
+                email = email,
+                role = UserRole.User,
+                name = email.substringBefore('@'),
+                language = AppLanguage.English,
+                subscription = AppSubscription.Base,
+                timestamp = getCurrentTimestamp()
+            )
+            val id = runCatching { userRepository.createUser(user = user) }
+                .getOrElse { return ResultData.Error(AuthDataError.UserNotFound) }
+            user = user.copy(id = id)
+        }
 
         val token = createJwtOrNull(user = user) ?: return ResultData.Error(AuthDataError.ErrorDuringCreatingJwtToken)
 
