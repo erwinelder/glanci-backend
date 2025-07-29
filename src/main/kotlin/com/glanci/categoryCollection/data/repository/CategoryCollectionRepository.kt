@@ -4,7 +4,10 @@ import com.glanci.categoryCollection.data.model.CategoryCollectionWithAssociatio
 
 interface CategoryCollectionRepository {
 
-    fun upsertCategoryCollectionsWithAssociations(collections: List<CategoryCollectionWithAssociationsDataModel>)
+    fun upsertCategoryCollectionsWithAssociations(
+        userId: Int,
+        collections: List<CategoryCollectionWithAssociationsDataModel>
+    )
 
     fun getCategoryCollectionsWithAssociationsAfterTimestamp(
         userId: Int,

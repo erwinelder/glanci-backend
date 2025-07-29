@@ -33,6 +33,7 @@ class CategoryCollectionServiceImpl(
 
         runCatching {
             categoryCollectionRepository.upsertCategoryCollectionsWithAssociations(
+                userId = user.id,
                 collections = collections.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {

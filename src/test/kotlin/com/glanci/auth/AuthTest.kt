@@ -1,8 +1,8 @@
 package com.glanci.auth
 
-import com.glanci.request.shared.error.AuthDataError
 import com.glanci.auth.shared.service.AuthService
 import com.glanci.mainModule
+import com.glanci.request.shared.error.AuthDataError
 import com.glanci.utils.configureRcp
 import com.glanci.utils.getKrpcClient
 import io.ktor.server.testing.*
@@ -18,8 +18,7 @@ class AuthTest {
     fun `signIn returns success`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
-        val rcpClient = client.configureRcp(path = "auth")
-        val service = rcpClient.withService<AuthService>()
+        val service = client.configureRcp(path = "auth").withService<AuthService>()
 
         val userWithToken = service.signIn(email = "base_user@domain.com", password = "password").getDataOrNull()
 
@@ -33,8 +32,7 @@ class AuthTest {
     fun `successful signIn via Firebase creates a new user in the database`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
-        val rcpClient = client.configureRcp(path = "auth")
-        val service = rcpClient.withService<AuthService>()
+        val service = client.configureRcp(path = "auth").withService<AuthService>()
 
         val userWithToken = service.signIn(email = "new_user@domain.com", password = "password").getDataOrNull()
 
@@ -48,8 +46,7 @@ class AuthTest {
     fun `signUp returns success`() = testApplication {
         application { mainModule() }
         val client = getKrpcClient()
-        val rcpClient = client.configureRcp(path = "auth")
-        val service = rcpClient.withService<AuthService>()
+        val service = client.configureRcp(path = "auth").withService<AuthService>()
 
         val signInError = service.signIn(email = "not_existing_user@domain.com", password = "password").getErrorOrNull()
 

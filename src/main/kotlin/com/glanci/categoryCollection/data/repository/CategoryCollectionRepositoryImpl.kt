@@ -8,10 +8,9 @@ import com.glanci.categoryCollection.data.model.CategoryCollectionWithAssociatio
 import com.glanci.categoryCollection.data.utils.divide
 import com.glanci.categoryCollection.data.utils.zipWithAssociations
 import com.glanci.core.data.db.GlanciDatabaseProvider
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchUpsert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class CategoryCollectionRepositoryImpl(
@@ -22,9 +21,11 @@ class CategoryCollectionRepositoryImpl(
 
 
     override fun upsertCategoryCollectionsWithAssociations(
+        userId: Int,
         collections: List<CategoryCollectionWithAssociationsDataModel>
     ) {
         val (collections, associations) = collections.divide()
+        val collectionIdsToDelete = collections.mapNotNull { collection -> collection.takeIf { it.deleted }?.id }
 
         transaction(database) {
             CategoryCollectionTable.batchUpsert(collections) { collection ->
@@ -40,6 +41,10 @@ class CategoryCollectionRepositoryImpl(
                 this[CategoryCollectionCategoryAssociationTable.userId] = association.userId
                 this[CategoryCollectionCategoryAssociationTable.collectionId] = association.collectionId
                 this[CategoryCollectionCategoryAssociationTable.categoryId] = association.categoryId
+            }
+            CategoryCollectionCategoryAssociationTable.deleteWhere {
+                (CategoryCollectionCategoryAssociationTable.userId eq userId) and
+                        (CategoryCollectionCategoryAssociationTable.collectionId inList collectionIdsToDelete)
             }
         }
     }

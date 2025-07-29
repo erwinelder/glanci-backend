@@ -8,10 +8,9 @@ import com.glanci.budget.data.model.BudgetWithAssociationsDataModel
 import com.glanci.budget.data.utils.divide
 import com.glanci.budget.data.utils.zipWithAssociations
 import com.glanci.core.data.db.GlanciDatabaseProvider
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchUpsert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class BudgetRepositoryImpl(
@@ -21,8 +20,12 @@ class BudgetRepositoryImpl(
     constructor(databaseProvider: GlanciDatabaseProvider) : this(database = databaseProvider.database)
 
 
-    override fun upsertBudgetsWithAssociations(budgetsWithAssociations: List<BudgetWithAssociationsDataModel>) {
+    override fun upsertBudgetsWithAssociations(
+        userId: Int,
+        budgetsWithAssociations: List<BudgetWithAssociationsDataModel>
+    ) {
         val (budgets, associations) = budgetsWithAssociations.divide()
+        val budgetIdsToDelete = budgets.mapNotNull { budget -> budget.takeIf { it.deleted }?.id }
 
         transaction(database) {
             BudgetTable.batchUpsert(budgets) { budget ->
@@ -39,6 +42,10 @@ class BudgetRepositoryImpl(
                 this[BudgetAccountAssociationTable.userId] = association.userId
                 this[BudgetAccountAssociationTable.budgetId] = association.budgetId
                 this[BudgetAccountAssociationTable.accountId] = association.accountId
+            }
+            BudgetAccountAssociationTable.deleteWhere {
+                (BudgetAccountAssociationTable.userId eq userId) and
+                        (BudgetAccountAssociationTable.budgetId inList budgetIdsToDelete)
             }
         }
     }

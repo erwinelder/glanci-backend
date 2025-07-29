@@ -33,6 +33,7 @@ class BudgetServiceImpl(
 
         runCatching {
             budgetRepository.upsertBudgetsWithAssociations(
+                userId = user.id,
                 budgetsWithAssociations = budgets.map { it.toDataModel(userId = user.id) }
             )
         }.onFailure {
