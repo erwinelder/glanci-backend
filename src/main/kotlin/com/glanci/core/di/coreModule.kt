@@ -17,7 +17,7 @@ val coreModule = module {
 
     /* ------------ Repositories ------------ */
 
-    single<UpdateTimeRepository> {
+    factory<UpdateTimeRepository> {
         UpdateTimeRepositoryImpl(databaseProvider = get())
     }
 
