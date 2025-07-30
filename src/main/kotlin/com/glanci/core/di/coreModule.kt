@@ -17,13 +17,13 @@ val coreModule = module {
 
     /* ------------ Repositories ------------ */
 
-    factory<UpdateTimeRepository> {
+    single<UpdateTimeRepository> {
         UpdateTimeRepositoryImpl(databaseProvider = get())
     }
 
     /* ------------ Services ------------ */
 
-    single<UpdateTimeService> { params ->
+    factory<UpdateTimeService> { params ->
         UpdateTimeServiceImpl(
             updateTimeRepository = get(),
             tableName = params.get()
