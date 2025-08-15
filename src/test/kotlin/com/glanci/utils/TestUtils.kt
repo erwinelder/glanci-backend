@@ -1,11 +1,11 @@
 package com.glanci.utils
 
 import com.glanci.auth.domain.model.User
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.auth.utils.createJwtOrNull
 import com.glanci.core.config.configureKrpc
 import com.glanci.core.domain.model.app.AppLanguage
-import com.glanci.core.domain.model.app.AppSubscription
+import com.glanci.auth.shared.dto.AppSubscription
 import io.ktor.client.*
 import io.ktor.http.*
 import io.ktor.server.testing.*

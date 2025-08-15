@@ -6,12 +6,12 @@ import com.glanci.account.mapper.toQueryDto
 import com.glanci.account.shared.dto.AccountCommandDto
 import com.glanci.account.shared.dto.AccountQueryDto
 import com.glanci.account.shared.service.AccountService
-import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.request.shared.ResultData
 import com.glanci.request.shared.SimpleResult
-import com.glanci.request.shared.getDataOrReturn
-import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.getOrElse
+import com.glanci.request.shared.onError
 import com.glanci.request.shared.error.AccountDataError
 import com.glanci.request.shared.error.DataError
 
@@ -21,7 +21,7 @@ class AccountServiceImpl(
 ) : AccountService {
 
     override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
 
@@ -30,7 +30,7 @@ class AccountServiceImpl(
         timestamp: Long,
         token: String
     ): SimpleResult<DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         runCatching {
             accountRepository.upsertAccounts(
@@ -47,7 +47,7 @@ class AccountServiceImpl(
         timestamp: Long,
         token: String
     ): ResultData<List<AccountQueryDto>, DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
 
         val accounts = runCatching {
             accountRepository.getAccountsAfterTimestamp(userId = user.id, timestamp = timestamp)
@@ -66,7 +66,7 @@ class AccountServiceImpl(
         token: String
     ): ResultData<List<AccountQueryDto>, DataError> {
         saveAccounts(accounts = accounts, timestamp = timestamp, token = token)
-            .returnIfError { return ResultData.Error(it) }
+            .onError { return ResultData.Error(it) }
         return getAccountsAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

@@ -1,11 +1,11 @@
 package com.glanci.transfer.domain.service
 
-import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.request.shared.ResultData
 import com.glanci.request.shared.SimpleResult
-import com.glanci.request.shared.getDataOrReturn
-import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.getOrElse
+import com.glanci.request.shared.onError
 import com.glanci.request.shared.error.DataError
 import com.glanci.request.shared.error.TransferDataError
 import com.glanci.transfer.data.repository.TransferRepository
@@ -21,7 +21,7 @@ class TransferServiceImpl(
 ) : TransferService {
 
     override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
 
@@ -30,7 +30,7 @@ class TransferServiceImpl(
         timestamp: Long,
         token: String
     ): SimpleResult<DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         runCatching {
             transferRepository.upsertTransfers(
@@ -47,7 +47,7 @@ class TransferServiceImpl(
         timestamp: Long,
         token: String
     ): ResultData<List<TransferQueryDto>, DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
 
         val transfers = runCatching {
             transferRepository.getTransfersAfterTimestamp(userId = user.id, timestamp = timestamp)
@@ -66,7 +66,7 @@ class TransferServiceImpl(
         token: String
     ): ResultData<List<TransferQueryDto>, DataError> {
         saveTransfers(transfers = transfers, timestamp = timestamp, token = token)
-            .returnIfError { return ResultData.Error(it) }
+            .onError { return ResultData.Error(it) }
         return getTransfersAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

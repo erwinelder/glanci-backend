@@ -2,7 +2,7 @@ package com.glanci.auth.data.repository
 
 import com.glanci.auth.domain.model.User
 import com.glanci.core.domain.model.app.AppLanguage
-import com.glanci.core.domain.model.app.AppSubscription
+import com.glanci.auth.shared.dto.AppSubscription
 
 interface UserRepository {
 

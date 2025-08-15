@@ -1,6 +1,6 @@
 package com.glanci.budget.domain.service
 
-import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.budget.data.repository.BudgetOnWidgetRepository
 import com.glanci.budget.mapper.toDataModel
 import com.glanci.budget.mapper.toDto
@@ -9,8 +9,8 @@ import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.core.domain.service.UpdateTimeService
 import com.glanci.request.shared.ResultData
 import com.glanci.request.shared.SimpleResult
-import com.glanci.request.shared.getDataOrReturn
-import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.getOrElse
+import com.glanci.request.shared.onError
 import com.glanci.request.shared.error.BudgetOnWidgetDataError
 import com.glanci.request.shared.error.DataError
 
@@ -20,7 +20,7 @@ class BudgetOnWidgetServiceImpl(
 ) : BudgetOnWidgetService {
 
     override suspend fun getUpdateTime(token: String): ResultData<Long, DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
         return updateTimeService.getUpdateTime(userId = user.id)
     }
 
@@ -29,7 +29,7 @@ class BudgetOnWidgetServiceImpl(
         timestamp: Long,
         token: String
     ): SimpleResult<DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         runCatching {
             budgetOnWidgetRepository.upsertBudgetsOnWidget(
@@ -46,7 +46,7 @@ class BudgetOnWidgetServiceImpl(
         timestamp: Long,
         token: String
     ): ResultData<List<BudgetOnWidgetDto>, DataError> {
-        val user = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val user = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
 
         val budgets = runCatching {
             budgetOnWidgetRepository.getBudgetsOnWidgetAfterTimestamp(userId = user.id, timestamp = timestamp)
@@ -65,7 +65,7 @@ class BudgetOnWidgetServiceImpl(
         token: String
     ): ResultData<List<BudgetOnWidgetDto>, DataError> {
         saveBudgetsOnWidget(budgets = budgets, timestamp = timestamp, token = token)
-            .returnIfError { return ResultData.Error(it) }
+            .onError { return ResultData.Error(it) }
         return getBudgetsOnWidgetAfterTimestamp(timestamp = localTimestamp, token = token)
     }
 

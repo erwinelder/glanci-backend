@@ -5,7 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.glanci.auth.domain.model.User
 import com.glanci.auth.domain.model.UserAuthData
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.request.shared.ResultData
 import com.glanci.request.shared.error.AuthDataError
 import java.util.*
@@ -70,7 +70,7 @@ fun DecodedJWT.getRoleFromJwt(): UserRole {
 }
 
 
-fun authorizeAtLeastAsUserResult(token: String): ResultData<UserAuthData, AuthDataError> {
+fun authorizeAtLeastAsUser(token: String): ResultData<UserAuthData, AuthDataError> {
     return verifyAndDecodeJwtResult(token = token).mapData {
         UserAuthData(id = it.getIdFromJwt(), role = it.getRoleFromJwt())
     }

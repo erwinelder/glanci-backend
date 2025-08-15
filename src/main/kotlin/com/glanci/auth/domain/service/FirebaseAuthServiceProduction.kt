@@ -5,7 +5,7 @@ import com.glanci.request.shared.error.AuthDataError
 import com.glanci.auth.error.firebase.FirebaseErrorResponse
 import com.glanci.request.shared.ResultData
 import com.glanci.request.shared.SimpleResult
-import com.glanci.request.shared.getDataOrReturn
+import com.glanci.request.shared.getOrElse
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -98,7 +98,7 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             return ResultData.Error(AuthDataError.InvalidCredentials)
         }
 
-        val user = lookup(idToken = authResponse.idToken).getDataOrReturn { return ResultData.Error(it) }
+        val user = lookup(idToken = authResponse.idToken).getOrElse { return ResultData.Error(it) }
 
         if (!user.emailVerified) {
             sendEmailVerification(idToken = user.idToken)
@@ -161,7 +161,7 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             applyOobCode(oobCode = oobCode)
         }
             .getOrElse { return ResultData.Error(AuthDataError.EmailVerificationFailed) }
-            .getDataOrReturn { return ResultData.Error(it) }
+            .getOrElse { return ResultData.Error(it) }
 
         val email = responseJson["email"]?.jsonPrimitive?.content
             ?: return ResultData.Error(AuthDataError.EmailVerificationFailed)
@@ -192,7 +192,7 @@ class FirebaseAuthServiceProduction : FirebaseAuthService {
             applyOobCode(oobCode = oobCode)
         }
             .getOrElse { return ResultData.Error(AuthDataError.EmailUpdateFailed) }
-            .getDataOrReturn { return ResultData.Error(it) }
+            .getOrElse { return ResultData.Error(it) }
 
         val email = responseJson["email"]?.jsonPrimitive?.content
             ?: return ResultData.Error(AuthDataError.EmailUpdateFailed)

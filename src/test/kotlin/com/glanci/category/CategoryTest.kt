@@ -1,6 +1,6 @@
 package com.glanci.category
 
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.category.shared.dto.CategoryCommandDto
 import com.glanci.category.shared.service.CategoryService
 import com.glanci.core.utils.getCurrentTimestamp

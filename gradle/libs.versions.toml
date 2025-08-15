@@ -11,7 +11,7 @@ h2-version = "2.3.232"
 # Firebase
 firebase-admin = "9.4.3"
 # kRPC
-krpc-version = "0.8.1"
+krpc-version = "0.9.1"
 # Koin
 koin = "4.1.0"
 # Utilities
@@ -35,7 +35,7 @@ ktor-server-http-redirect = { module = "io.ktor:ktor-server-http-redirect", vers
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor-version" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor-version" }
 # kRPC
-kotlinx-rpc-core = { module = "org.jetbrains.kotlinx:kotlinx-rpc-core", version.ref = "krpc-version" }
+krpc-core = { module = "org.jetbrains.kotlinx:kotlinx-rpc-core", version.ref = "krpc-version" }
 krpc-client = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-client", version.ref = "krpc-version" }
 krpc-ktor-client = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-ktor-client", version.ref = "krpc-version" }
 krpc-server = { module = "org.jetbrains.kotlinx:kotlinx-rpc-krpc-server", version.ref = "krpc-version" }
@@ -73,6 +73,6 @@ kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", versi
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
-ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
 krpc = { id = "org.jetbrains.kotlinx.rpc.plugin", version.ref = "krpc-version" }

@@ -3,8 +3,8 @@ version = "5.0"
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.ktor)
     alias(libs.plugins.krpc)
 }
 
@@ -33,7 +33,7 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.websockets)
     // kRPC
-    implementation(libs.kotlinx.rpc.core)
+    implementation(libs.krpc.core)
     implementation(libs.krpc.client)
     implementation(libs.krpc.ktor.client)
     implementation(libs.krpc.server)

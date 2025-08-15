@@ -1,23 +1,24 @@
 package com.glanci.auth.domain.service
 
 import com.glanci.auth.data.repository.UserRepository
-import com.glanci.auth.domain.model.*
+import com.glanci.auth.domain.model.AppVersionValidator
+import com.glanci.auth.domain.model.User
+import com.glanci.auth.domain.model.UserAuthData
+import com.glanci.auth.domain.model.UserDataValidator
 import com.glanci.auth.mapper.toDomainModel
 import com.glanci.auth.mapper.toDto
-import com.glanci.auth.shared.dto.CheckAppVersionRequestDto
-import com.glanci.auth.shared.dto.UserDto
-import com.glanci.auth.shared.dto.UserWithTokenDto
+import com.glanci.auth.mapper.toUserWithTokenDto
+import com.glanci.auth.shared.dto.*
 import com.glanci.auth.shared.service.AuthService
-import com.glanci.auth.utils.authorizeAtLeastAsUserResult
+import com.glanci.auth.utils.authorizeAtLeastAsUser
 import com.glanci.auth.utils.createJwtOrNull
 import com.glanci.core.domain.model.app.AppLanguage
-import com.glanci.core.domain.model.app.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.request.shared.ResultData
 import com.glanci.request.shared.SimpleResult
 import com.glanci.request.shared.error.AuthDataError
-import com.glanci.request.shared.getDataOrReturn
-import com.glanci.request.shared.returnIfError
+import com.glanci.request.shared.getOrElse
+import com.glanci.request.shared.onError
 
 class AuthServiceImpl(
     private val firebaseAuthService: FirebaseAuthService,
@@ -44,7 +45,7 @@ class AuthServiceImpl(
 
         val token = createJwtOrNull(user = user) ?: return ResultData.Error(AuthDataError.ErrorDuringCreatingJwtToken)
 
-        return ResultData.Success(data = UserWithTokenDto.fromUserAndToken(user = user, token = token))
+        return ResultData.Success(data = user.toUserWithTokenDto(token = token))
     }
 
 
@@ -52,10 +53,10 @@ class AuthServiceImpl(
         appVersion: CheckAppVersionRequestDto,
         token: String
     ): ResultData<UserDto, AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
 
         AppVersionValidator.validateAppVersion(version = appVersion.toDomainModel())
-            .returnIfError { return ResultData.Error(it) }
+            .onError { return ResultData.Error(it) }
 
         val user = runCatching { userRepository.getUser(id = userData.id) }
             .getOrElse { return ResultData.Error(AuthDataError.UserNotFetched) }
@@ -68,7 +69,7 @@ class AuthServiceImpl(
         email: String,
         password: String
     ): ResultData<UserWithTokenDto, AuthDataError> {
-        firebaseAuthService.signIn(email = email, password = password).returnIfError { return ResultData.Error(it) }
+        firebaseAuthService.signIn(email = email, password = password).onError { return ResultData.Error(it) }
         return getUserWithToken(email = email)
     }
 
@@ -86,7 +87,7 @@ class AuthServiceImpl(
         if (!UserDataValidator.validatePassword(password)) return SimpleResult.Error(AuthDataError.InvalidPassword)
 
         val firebaseUser = firebaseAuthService.signUp(email = email, password = password)
-            .getDataOrReturn { return SimpleResult.Error(it) }
+            .getOrElse { return SimpleResult.Error(it) }
 
         val timestamp = getCurrentTimestamp()
         val user = User(
@@ -105,7 +106,7 @@ class AuthServiceImpl(
     }
 
     override suspend fun finishSignUp(oobCode: String): ResultData<UserWithTokenDto, AuthDataError> {
-        val email = firebaseAuthService.verifyEmail(oobCode = oobCode).getDataOrReturn { return ResultData.Error(it) }
+        val email = firebaseAuthService.verifyEmail(oobCode = oobCode).getOrElse { return ResultData.Error(it) }
         return getUserWithToken(email = email)
     }
 
@@ -114,14 +115,14 @@ class AuthServiceImpl(
         newEmail: String,
         token: String
     ): SimpleResult<AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         val user = runCatching { userRepository.getUser(id = userData.id) }
             .getOrElse { return SimpleResult.Error(AuthDataError.UserNotFetched) }
             ?: return SimpleResult.Error(AuthDataError.UserNotFound)
 
         val firebaseUser = firebaseAuthService.signIn(email = user.email, password = password)
-            .getDataOrReturn { return SimpleResult.Error(it) }
+            .getOrElse { return SimpleResult.Error(it) }
         return firebaseAuthService.requestEmailUpdate(idToken = firebaseUser.idToken, newEmail = newEmail)
     }
 
@@ -129,10 +130,10 @@ class AuthServiceImpl(
         oobCode: String,
         token: String
     ): ResultData<UserWithTokenDto, AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
 
         val email = firebaseAuthService.verifyEmailUpdate(oobCode = oobCode)
-            .getDataOrReturn { return ResultData.Error(it) }
+            .getOrElse { return ResultData.Error(it) }
 
         return saveUserEmailAndCreateNewToken(email = email, userData = userData)
     }
@@ -142,7 +143,7 @@ class AuthServiceImpl(
         password: String,
         token: String
     ): ResultData<UserWithTokenDto, AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return ResultData.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return ResultData.Error(it) }
 
         firebaseAuthService.signIn(email = newEmail, password = password).getErrorOrNull()?.run {
             return when (this) {
@@ -166,7 +167,7 @@ class AuthServiceImpl(
             ?: return ResultData.Error(AuthDataError.UserNotFound)
         val token = createJwtOrNull(user = user) ?: return ResultData.Error(AuthDataError.ErrorDuringCreatingJwtToken)
 
-        return ResultData.Success(data = UserWithTokenDto.fromUserAndToken(user = user, token = token))
+        return ResultData.Success(data = user.toUserWithTokenDto(token = token))
     }
 
     override suspend fun requestPasswordReset(email: String): SimpleResult<AuthDataError> {
@@ -182,19 +183,19 @@ class AuthServiceImpl(
         newPassword: String,
         token: String
     ): SimpleResult<AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         val user = runCatching { userRepository.getUser(id = userData.id) }
             .getOrElse { return SimpleResult.Error(AuthDataError.UserNotFetched) }
             ?: return SimpleResult.Error(AuthDataError.UserNotFound)
 
         val firebaseUser = firebaseAuthService.signIn(email = user.email, password = password)
-            .getDataOrReturn { return SimpleResult.Error(it) }
+            .getOrElse { return SimpleResult.Error(it) }
         return firebaseAuthService.updatePassword(idToken = firebaseUser.idToken, newPassword = newPassword)
     }
 
     override suspend fun saveUserName(name: String, token: String): SimpleResult<AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         if (!UserDataValidator.validateName(name)) return SimpleResult.Error(AuthDataError.InvalidName)
 
@@ -207,7 +208,7 @@ class AuthServiceImpl(
     }
 
     override suspend fun saveUserLanguage(langCode: String, timestamp: Long, token: String): SimpleResult<AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
         val language = AppLanguage.fromLangCode(langCode = langCode)
             ?: return SimpleResult.Error(AuthDataError.InvalidLanguage)
 
@@ -220,7 +221,7 @@ class AuthServiceImpl(
     }
 
     override suspend fun deleteAccount(email: String, password: String, token: String): SimpleResult<AuthDataError> {
-        val userData = authorizeAtLeastAsUserResult(token = token).getDataOrReturn { return SimpleResult.Error(it) }
+        val userData = authorizeAtLeastAsUser(token = token).getOrElse { return SimpleResult.Error(it) }
 
         runCatching { userRepository.deleteUser(userId = userData.id) }
             .onFailure { return SimpleResult.Error(AuthDataError.UserNotDeleted) }

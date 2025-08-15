@@ -4,7 +4,7 @@ import com.glanci.auth.data.db.GlanciUserTable
 import com.glanci.auth.domain.model.User
 import com.glanci.core.data.db.GlanciDatabaseProvider
 import com.glanci.core.domain.model.app.AppLanguage
-import com.glanci.core.domain.model.app.AppSubscription
+import com.glanci.auth.shared.dto.AppSubscription
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction

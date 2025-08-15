@@ -24,20 +24,6 @@ sealed interface ResultData<out D, out E : DataError> {
         }
     }
 
-    fun mapDataToUnit(): ResultData<Unit, E> {
-        return when (this) {
-            is Success -> Success(Unit)
-            is Error -> Error(this.error)
-        }
-    }
-
-    fun <R : DataError> mapError(transform: (E) -> R): ResultData<D, R> {
-        return when (this) {
-            is Success -> Success(this.data)
-            is Error -> Error<D, R>(this.error.let(transform))
-        }
-    }
-
     fun <S : DataSuccess?> toDefaultResult(success: S): Result<S, E> {
         return when (this) {
             is Success -> Result.Success(success)
@@ -47,13 +33,13 @@ sealed interface ResultData<out D, out E : DataError> {
 
 }
 
-inline fun <D, E : DataError> ResultData<D, E>.getDataOrReturn(onReturn: (E) -> Nothing): D {
+inline fun <D, E : DataError> ResultData<D, E>.getOrElse(action: (E) -> Nothing): D {
     return when (this) {
         is ResultData.Success -> this.data
-        is ResultData.Error -> onReturn(this.error)
+        is ResultData.Error -> action(this.error)
     }
 }
 
-inline fun <D, E : DataError> ResultData<D, E>.returnIfError(onReturn: (E) -> Nothing) {
-    if (this is ResultData.Error) onReturn(this.error)
+inline fun <D, E : DataError> ResultData<D, E>.onError(action: (E) -> Nothing) {
+    if (this is ResultData.Error) action(this.error)
 }

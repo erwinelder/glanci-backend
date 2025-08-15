@@ -1,7 +1,5 @@
 package com.glanci.auth.shared.dto
 
-import com.glanci.auth.domain.model.UserRole
-import com.glanci.core.domain.model.app.AppSubscription
 import kotlinx.serialization.Serializable
 
 @Serializable

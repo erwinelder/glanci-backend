@@ -1,6 +1,6 @@
 package com.glanci.budget
 
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.budget.shared.dto.BudgetOnWidgetDto
 import com.glanci.budget.shared.service.BudgetOnWidgetService
 import com.glanci.core.utils.getCurrentTimestamp

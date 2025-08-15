@@ -1,6 +1,6 @@
 package com.glanci.categoryCollection
 
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.categoryCollection.shared.dto.CategoryCollectionCategoryAssociationDto
 import com.glanci.categoryCollection.shared.dto.CategoryCollectionDto
 import com.glanci.categoryCollection.shared.dto.CategoryCollectionWithAssociationsDto

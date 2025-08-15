@@ -17,10 +17,6 @@ sealed interface SimpleResult<out E : DataError> {
 
 }
 
-inline fun <E : DataError> SimpleResult<E>.returnIfError(onReturn: (E) -> Nothing) {
-    if (this is SimpleResult.Error) onReturn(this.error)
-}
-
-inline fun <E : DataError> SimpleResult<E>.returnItIfError(onReturn: (SimpleResult<E>) -> Nothing) {
-    if (this is SimpleResult.Error) onReturn(this)
+inline fun <E : DataError> SimpleResult<E>.onError(action: (E) -> Nothing) {
+    if (this is SimpleResult.Error) action(this.error)
 }

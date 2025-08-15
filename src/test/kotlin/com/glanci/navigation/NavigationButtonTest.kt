@@ -1,6 +1,6 @@
 package com.glanci.navigation
 
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
 import com.glanci.navigation.shared.dto.NavigationButtonDto

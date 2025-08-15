@@ -1,6 +1,6 @@
 package com.glanci.personalization
 
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.mainModule
 import com.glanci.personalization.shared.dto.WidgetDto

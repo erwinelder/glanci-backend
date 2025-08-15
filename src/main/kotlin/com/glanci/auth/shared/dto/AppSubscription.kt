@@ -1,4 +1,4 @@
-package com.glanci.core.domain.model.app
+package com.glanci.auth.shared.dto
 
 import kotlinx.serialization.Serializable
 

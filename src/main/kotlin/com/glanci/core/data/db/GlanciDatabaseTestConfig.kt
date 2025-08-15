@@ -2,7 +2,7 @@ package com.glanci.core.data.db
 
 import com.glanci.account.data.db.AccountTable
 import com.glanci.auth.data.db.GlanciUserTable
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.budget.data.db.BudgetAccountAssociationTable
 import com.glanci.budget.data.db.BudgetOnWidgetTable
 import com.glanci.budget.data.db.BudgetTable
@@ -10,7 +10,7 @@ import com.glanci.category.data.db.CategoryTable
 import com.glanci.categoryCollection.data.db.CategoryCollectionCategoryAssociationTable
 import com.glanci.categoryCollection.data.db.CategoryCollectionTable
 import com.glanci.core.domain.model.app.AppLanguage
-import com.glanci.core.domain.model.app.AppSubscription
+import com.glanci.auth.shared.dto.AppSubscription
 import com.glanci.core.utils.getCurrentTimestamp
 import com.glanci.navigation.data.db.NavigationButtonTable
 import com.glanci.personalization.data.db.WidgetTable

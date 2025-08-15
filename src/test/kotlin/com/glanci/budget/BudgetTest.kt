@@ -1,6 +1,6 @@
 package com.glanci.budget
 
-import com.glanci.auth.domain.model.UserRole
+import com.glanci.auth.shared.dto.UserRole
 import com.glanci.budget.shared.dto.BudgetAccountAssociationDto
 import com.glanci.budget.shared.dto.BudgetDto
 import com.glanci.budget.shared.dto.BudgetWithAssociationsDto
