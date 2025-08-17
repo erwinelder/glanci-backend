@@ -21,10 +21,6 @@ repositories {
 }
 
 dependencies {
-    // Ktor Client
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.websockets)
-    implementation(libs.ktor.client.logging)
     // Ktor Server
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
@@ -32,6 +28,10 @@ dependencies {
     implementation(libs.ktor.server.http.redirect)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.websockets)
+    // Ktor Client
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.websockets)
+    implementation(libs.ktor.client.logging)
     // kRPC
     implementation(libs.krpc.core)
     implementation(libs.krpc.client)
